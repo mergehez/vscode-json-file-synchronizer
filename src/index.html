@@ -91,8 +91,6 @@
 						switch (message.command) {
 							case 'json' : 
 								const json = message.json;
-								console.log("alpine.init json received in index.html: ", json);
-								// self.folderPath = json.folderPath;
 								self.files = json.data._fileNames;
 								self.map = json.data._map;
 								break;
@@ -114,36 +112,28 @@
 				},
 				deleteRow(key){
 					const rowIndex = this.map.findIndex(r => r.key == key);
-					// console.log(this.map.length);
 					if(rowIndex != -1){
 						this.map.splice(rowIndex, 1);
 						this.updateFile(-2);
-						console.log("deleted");
 					}
-					// console.log(this.map.length);
 				},
 				refresh(){
 					vscode.postMessage({ command: 'refresh' });
 				},
 				showInputMenu(e, row, index){
-					console.log("showInputMenu", row.key);
 					e.preventDefault();
 					this.menuData = {
 						rowKey: row.key,
 						fileIndex: index,
 						style: `left: ${event.pageX}px; top: ${event.pageY}px;display:block;`
 					};
-					console.log(this.menuData);
 				},
 				hideInputMenu(e){
-					console.log("hideInputMenu");
 					if(this.menuData.rowKey){
-						console.log("hideInputMenu true");
 						this.menuData.rowKey = "";
 						this.menuData.style = "display:none;";
 					}else if(e){
 						if(e.target.tagName.toUpperCase() == "INPUT" && e.target.disabled){
-							console.log(e.target.parentNode.parentNode);
 							e.target.parentNode.parentNode.querySelector("input")?.focus();
 						}
 					}
@@ -171,8 +161,6 @@
 					e.target.parentNode.parentNode.classList.remove("focused");
 				},
 				update(e, key, isKey){
-					console.log("update");
-					console.log(e);
 					const index = e.target.dataset.index;
 					const row = this.map.find(r => r.key == key);
 					if(isKey){
@@ -180,13 +168,11 @@
 					}else{
 						row.value[index] = e.target.value;
 					}
-					// console.log(row.value);
 					if(this.saveOnChange){
 						this.updateFile(index);
 					}
 				},
 				updateFile(fileIndex){
-					console.log("setConfig updatingFile");
 					vscode.postMessage({ 
 						command: 'updateFile', 
 						data: JSON.stringify( {
@@ -196,7 +182,6 @@
 					});
 				},
 				setConfigSaveOnChange(){
-					console.log("setConfig saveOnChange: ", this.saveOnChange);
 					vscode.postMessage({ 
 						command: 'setConfig', 
 						key : "saveOnChange",
@@ -205,7 +190,6 @@
 					});
 				},
 				goToConfigPage(){
-					console.log("goToConfigPage");
 					vscode.postMessage({ 
 						command: 'goToConfigPage'
 					});
