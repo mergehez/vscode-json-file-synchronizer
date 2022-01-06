@@ -77,9 +77,7 @@ export class JsonSyncManager {
 						
 						return;
 					case 'goToConfigPage':{
-						const filesPaths = getConfig("files", undefined);
-						this._panel.webview.html = openFileInSrc(this._context.extensionPath, "config.html");
-						this._panel.webview.postMessage({ command: 'file-list', list: filesPaths ?? "directory not found" });
+                        this._goToConfigPage(true);
 						return;
 					}
 					case 'updateFile':{
@@ -97,7 +95,8 @@ export class JsonSyncManager {
 						return;
 					}
 					case 'getFilesInFolder':{
-						const fileNames = getFilesInFolder(message.folderPath, message.recursive);
+                        const exts = message.fileExts;
+						const fileNames = getFilesInFolder(message.folderPath, message.recursive, exts);
 						this._panel.webview.postMessage({ command: 'file-list', list: fileNames ?? "directory not found" });
 						return;
 					}
@@ -117,11 +116,24 @@ export class JsonSyncManager {
 		
 	}
 
+    private _goToConfigPage(sendFileList = false){
+		const htmlContent = openFileInSrc(this._context.extensionPath, "config.html");
+        const fileExts = getConfig("fileExtensions", ["json"]);
+        const folder = getConfig("folder", "");
+        this._panel.webview.html = htmlContent
+            .replace("[FOLDER]", folder)
+            .replace("[FILEEXTS]", fileExts.join(", "));
+        if(sendFileList){
+            const filesPaths = getConfig("files", undefined);
+            this._panel.webview.postMessage({ command: 'file-list', list: filesPaths ?? "directory not found" });
+        }
+    }
+
 	private _getHtmlForWebview(webview: vscode.Webview) {
-		let htmlFileName = "index.html";
 		const filesPaths = getConfig("files", undefined);
 		if(!filesPaths){
-			htmlFileName = "config.html";
+            this._goToConfigPage();
+            return;
 		}else if(this._translations.filePaths.length === 0) {
 			const workspacePaths = vscode.workspace.workspaceFolders;
 			if (workspacePaths) {
@@ -129,24 +141,19 @@ export class JsonSyncManager {
 			}
 		}
 
-		const htmlContent = openFileInSrc(this._context.extensionPath, htmlFileName);
-
-		if(!filesPaths){
-			this._panel.webview.html = htmlContent;
-		}else{
-			const alpineScriptUri = vscode.Uri.joinPath(this._extensionUri, 'src', 'alpine.js').with({ 'scheme': 'vscode-resource' });
-			const vscodeCssUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'src', 'vscode.css'));
-	
-			this._panel.webview.html = htmlContent
-				.replace("[vscodeCssUri]", vscodeCssUri.toString())
-				.replace("[alpineScriptUri]", alpineScriptUri.toString())
-				.replace("[cspSource]", webview.cspSource)
-				.replace("[MAP]", JSON.stringify(this._translations.map))
-				.replace("[FILES]", JSON.stringify(this._translations.fileNames))
-				.replace("[SAVEONCHANGE]", getConfig("saveOnChange", false) ? "true" : "false");
-				
-			// this._panel.webview.postMessage({ command: 'json', json: this._translations });
-		}
+        const alpineScriptUri = vscode.Uri.joinPath(this._extensionUri, 'src', 'alpine.js').with({ 'scheme': 'vscode-resource' });
+        const vscodeCssUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'src', 'vscode.css'));
+        
+		const htmlContent = openFileInSrc(this._context.extensionPath, "index.html");
+        this._panel.webview.html = htmlContent
+            .replace("[vscodeCssUri]", vscodeCssUri.toString())
+            .replace("[alpineScriptUri]", alpineScriptUri.toString())
+            .replace("[cspSource]", webview.cspSource)
+            .replace("[MAP]", JSON.stringify(this._translations.map))
+            .replace("[FILES]", JSON.stringify(this._translations.fileNames))
+            .replace("[SAVEONCHANGE]", getConfig("saveOnChange", false) ? "true" : "false");
+            
+        // this._panel.webview.postMessage({ command: 'json', json: this._translations });
 	}
 }
 

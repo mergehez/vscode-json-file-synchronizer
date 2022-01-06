@@ -42,10 +42,10 @@ export function getConfig<T>(key: string, defaultValue: T) : T {
 		return defaultValue;
     }
 		
-	return config[key];
+	return config[key] ?? defaultValue;
 }
 
-export function getFilesInFolder(folderPath: string, recursive: boolean){
+export function getFilesInFolder(folderPath: string, recursive: boolean, exts = ["json"]){
 	const workspacePaths = vscode.workspace.workspaceFolders;
 	if(workspacePaths){
 		const rootPath = workspacePaths[0].uri.fsPath;
@@ -54,33 +54,35 @@ export function getFilesInFolder(folderPath: string, recursive: boolean){
 			return undefined;
 		}
 		if(recursive){
-			return findInDir(pathsString, /\.json$/, [], rootPath);
+			return findInDir(pathsString, exts, [], rootPath);
         }
 
 		const fileNames = fs.readdirSync(pathsString);
-		return fileNames.filter(f => f.endsWith(".json"));
+		return fileNames.filter(f => exts.filter(ext => f.endsWith(`.${ext}`)).length > 0);
 	}
 	return undefined;
 }
 
-function findInDir (dir : string, filter : RegExp, fileList = new Array<string>(), replace = "") {
+function findInDir (dir : string, exts = ["json"], fileList = new Array<string>(), replace = "") {
 	const files = fs.readdirSync(dir);
 
 	files.forEach((file) => {
 		const filePath = path.join(dir, file);
-		const fileStat = fs.lstatSync(filePath);
   
-		if (fileStat.isDirectory()) {
-			findInDir(filePath, filter, fileList, replace);
-		} else if (filter.test(filePath)) {
-			if(!filePath.includes(_configFileName)){
-				let res = replace.length === 0 ? filePath : filePath.replace(replace, "");
-				if(res.length > 0 && (res[0] === "/" || res[0] === "\\")){
-					res = res.substring(1);
-                }
-				fileList.push(res);
-			}
+		if (fs.lstatSync(filePath).isDirectory()) {
+			findInDir(filePath, exts, fileList, replace);
+            return;
 		}
+
+        if (file === _configFileName || exts.filter(ext => file.endsWith(`.${ext}`)).length === 0){
+            return;
+        }
+
+        let res = replace.length === 0 ? filePath : filePath.replace(replace, "");
+        if(res.length > 0 && (res[0] === "/" || res[0] === "\\")){
+            res = res.substring(1);
+        }
+        fileList.push(res);
 	});
   
 	return fileList;

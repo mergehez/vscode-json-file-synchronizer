@@ -9,10 +9,18 @@
 <body style="height: 100vh;">
     <h1 style="padding-bottom: 10px; text-align: center; width: 100%;">Arg JSON File Synchronizer <curr_time/></h1>
 	<form style="display: flex; padding: 20px; flex-direction: column; font-size: 1.2rem;" onsubmit="event.preventDefault(); submitForm();">
-		<div style="padding: 10px 0;">To use the extension you must select the json files. Type a directory to get available json files<br/><i>If the files are in the root path located, just type '<b>/</b>'</i></div>
+		<div style="padding: 10px 0;">
+            To use the extension you must select the files containing json. Type a directory to get available files<br/>
+            <i>- If the files are in the root path located, just type <b>/</b></i><br/>
+            <i>- Separate extensions by comma</i>
+        </div>
 		<div style="display: flex; align-items: center; margin-top:10px;">
 			<label for="input-folder" style="width: 150px;">Directory: </label>
-			<input type="text" id="input-folder" placeholder="e.g. src/localization" style="padding: 5px; font-size: 1.2rem; flex-grow: 1;" required="required">
+			<input type="text" id="input-folder" placeholder="e.g. src/localization" style="padding: 5px; font-size: 1.2rem; flex-grow: 1;" required="required" value="[FOLDER]">
+		</div>
+		<div style="display: flex; align-items: center; margin-top:10px;">
+			<label for="input-folder" style="width: 150px;">File extensions: </label>
+			<input type="text" id="input-exts" placeholder="e.g. separate by commas" style="padding: 5px; font-size: 1.2rem; flex-grow: 1;" required="required" value="[FILEEXTS]">
 		</div>
 		<div style="display: flex; align-items: center; margin-top:10px;">
 			<label for="input-recursive" style="width: 150px;">Recursive: </label>
@@ -39,20 +47,25 @@
 
 <script>
 	let vscode;
+    let latestExts = "", latestFolder = "";
 	function submitForm(e){
-		const input = document.getElementById("input-folder");
-		const value = input.value;
-		if(value.trim().length == 0){
-			input.value = "";
+		const inputFolder = document.getElementById("input-folder");
+		const inputExts = document.getElementById("input-exts");
+		const folder = inputFolder.value;
+		if(folder.trim().length == 0 || inputExts.value.trim().length == 0){
+			inputFolder.value = "";
+			inputExts.value = "";
 			return;
 		}
+        latestFolder = folder;
+        latestExts = inputExts.value.trim().split(",").map(t => t.trim());
 		vscode.postMessage({ 
 			command: 'getFilesInFolder', 
-			folderPath : value,
+			folderPath : folder,
+            fileExts: latestExts, 
 			recursive: document.getElementById("input-recursive").checked
 		});
 	}
-
 	(function () {
 		vscode = acquireVsCodeApi();
 		const secondForm = document.getElementById("second-form");
@@ -63,7 +76,6 @@
 			const message = event.data; 
 			if(message.command == "file-list"){
 				const list = message.list;
-				console.log("file list received in config.html: ", list);
 
 				const noDir = list == "directory not found";
 				if(noDir || list.length == 0){
@@ -93,13 +105,30 @@
 		document.getElementById("btn-save").addEventListener("click", () => {
 			var fileNames = Array.from(document.querySelectorAll(".file-list-item:checked + label")).map(el => el.innerHTML);
 
+            if(latestExts.length > 0){
+                vscode.postMessage({ 
+                    command: 'setConfig', 
+                    key : "fileExtensions",
+                    value: latestExts,
+                    refresh: 0
+                });
+            }
+
+            if(latestFolder.length > 0){
+                vscode.postMessage({ 
+                    command: 'setConfig', 
+                    key : "folder",
+                    value: latestFolder,
+                    refresh: 0
+                });
+            }
+
             vscode.postMessage({ 
 				command: 'setConfig', 
 				key : "files",
 				value: fileNames,
 				refresh: 1
 			});
-			console.log(fileNames);
 		});
 	}());
 
