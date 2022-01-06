@@ -108,17 +108,15 @@ export default class JsonList{
 	}
 
 	private parseJsonFile(filePathWithoutRoot: string){
-		if (filePathWithoutRoot.endsWith('.json')) {
-			const filePathFull = path.join(this.rootPath, filePathWithoutRoot);
-			const json = JSON.parse(fs.readFileSync(filePathFull, 'utf8'));
-			const fileName = path.parse(filePathWithoutRoot).base;
+        const filePathFull = path.join(this.rootPath, filePathWithoutRoot);
+        const json = JSON.parse(fs.readFileSync(filePathFull, 'utf8'));
+        const fileName = path.parse(filePathWithoutRoot).base;
 
-            for (const key in json) {
-				if (Object.prototype.hasOwnProperty.call(json, key)) {	
-					this._addValue(fileName, key, json[key]);
-				}
-			}
-		}
+        for (const key in json) {
+            if (Object.prototype.hasOwnProperty.call(json, key)) {	
+                this._addValue(fileName, key, json[key]);
+            }
+        }
 	}
 
 	// sort map by string index
