@@ -10,69 +10,70 @@
 	<title>JSON File Sync</title>
 </head>
 <body>
-	<div x-data="getData()" @init-json.window="initJson" style="padding: 20px 0;">
-		<div id="ctxMenu" x-bind:style="menuData.style">
-			<li x-on:click="menuPasteKey">Paste Key</li>
-			<li x-on:click="menuClearCell">Clear Cell</li>
-			<li>Open</li>
-		</div>
-		<h1 style="padding-bottom: 10px; text-align: center; width: 100%;">Arg JSON File Synchronizer <curr_time/></h1>
-		<!-- <div style="padding: 5px 0 10px">
-			<h3><b>Directory of the JSON files: </b> <span x-text="folderPath"></span></h3>
-		</div> -->
-		<div style="display: flex; margin-bottom: 10px;">
-			<button x-on:click="addRow" style="width: initial;padding-left: 20px; padding-right: 20px;"> Add New Key </button>
-			<button x-on:click="refresh" style="width: initial;padding-left: 20px; padding-right: 20px; margin-left: 10px;"> Refresh Table </button>
-			<button x-on:click="updateFile(-2)" style="width: initial;padding-left: 20px; padding-right: 20px; margin-left: 10px;"> Save Changes </button>
-			<div style="display: flex; align-items: center; padding:0 10px;">
-				<input type="checkbox" id="input-recursive" x-model="saveOnChange" x-on:change="setConfigSaveOnChange" style="height: 20px; width: 20px;">
-				<label for="input-recursive" style="padding-left: 2px;">Save on Change</label>
-			</div>
-			<div style="flex-grow: 1;"></div>
-			<button x-on:click="goToConfigPage" style="width: initial;padding-left: 20px; padding-right: 20px; margin-left: 10px;"> Change Files </button>
-		</div>
-		<table class="table" x-on:click="hideInputMenu($event)">
-			<thead>
-				<tr id="table-head-tr">
-					<th>Key</th>
-					<template x-for="file in files">
-						<th x-text="file"></th>
-					</template>
-					<th style="width: 3.5rem;">-</th>
-				</tr>
-			</thead>
-			<tbody id="table-body">
-				<template x-for="row in map">
-					<tr>
-						<td>
-							<input type="text" x-bind:value="row.key" x-on:change.debounce="update($event, row.key, true)" style="font-weight: bold;" required="required" x-on:focus="focusInput" x-on:blur="unfocusInput" data-index="-2">
-						</td>
-						<template x-for="(val, index) in row.value">
-							<td>
-								<input 
-								type="text" required="required" 
-								x-bind:value="val" 
-								x-bind:data-index="index" 
-								x-on:focus="focusInput" 
-								x-on:change.debounce="update($event, row.key, false)" 
-								x-on:blur="unfocusInput" 
-								x-on:contextmenu="showInputMenu(event, row, index)" 
-								x-on:click="hideInputMenu($event)"
-								x-bind:disabled="row.key.length == 0"
-							>
-							</td>
-						</template>
-						<td class="td-actions">
-							<div>
-								<button x-on:click="deleteRow(row.key)"> 
-									<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" width="24" height="24" preserveAspectRatio="xMidYMid meet" viewBox="0 0 48 48"><rect x="0" y="0" width="48" height="48" fill="none" stroke="none" /><g fill="none"><path d="M24 6.75a6.25 6.25 0 0 1 6.246 6.02l.004.231L37 13a1.75 1.75 0 0 1 .144 3.494L37 16.5h-1.167l-1.627 21.57A4.25 4.25 0 0 1 29.968 42H18.032a4.25 4.25 0 0 1-4.238-3.93L12.166 16.5H11a1.75 1.75 0 0 1-1.744-1.607l-.006-.143a1.75 1.75 0 0 1 1.607-1.744L11 13h6.75c0-3.298 2.555-6 5.794-6.234l.227-.012L24 6.75zm3.75 13a1.25 1.25 0 0 0-1.244 1.122L26.5 21v12l.006.128a1.25 1.25 0 0 0 2.488 0L29 33V21l-.006-.128a1.25 1.25 0 0 0-1.244-1.122zm-7.5 0a1.25 1.25 0 0 0-1.244 1.122L19 21v12l.006.128a1.25 1.25 0 0 0 2.488 0L21.5 33V21l-.006-.128a1.25 1.25 0 0 0-1.244-1.122zm3.918-9.495L24 10.25a2.75 2.75 0 0 0-2.745 2.582l-.005.169l5.5-.001a2.75 2.75 0 0 0-2.582-2.745z" fill="currentColor"/></g></svg> 
-								</button>
-							</div>
-						</td>
-					</tr>
-				</template>
-			</tbody>
-		</table>
+	<div x-data="getData()" @init-json.window="initJson" style="padding: 20px 0; display: flex; flex-direction: column;">
+        <div id="ctxMenu" x-bind:style="menuData.style">
+            <li x-on:click="menuPasteKey">Paste Key</li>
+            <li x-on:click="menuClearCell">Clear Cell</li>
+            <li>Open</li>
+        </div>
+        <div>
+            <h1 style="padding-bottom: 10px; text-align: center; width: 100%;">Arg JSON File Synchronizer</h1>
+            <div style="display: flex; margin-bottom: 10px;">
+                <button x-on:click="addRow" style="width: initial;padding-left: 20px; padding-right: 20px;"> Add New Key </button>
+                <button x-on:click="refresh" style="width: initial;padding-left: 20px; padding-right: 20px; margin-left: 10px;"> Refresh Table </button>
+                <button x-on:click="updateFile(-2)" style="width: initial;padding-left: 20px; padding-right: 20px; margin-left: 10px;"> Save Changes </button>
+                <div style="display: flex; align-items: center; padding:0 10px;">
+                    <input type="checkbox" id="input-recursive" x-model="saveOnChange" x-on:change="setConfigSaveOnChange" style="height: 20px; width: 20px;">
+                    <label for="input-recursive" style="padding-left: 2px;">Save on Change</label>
+                </div>
+                <div style="flex-grow: 1;"></div>
+                <button x-on:click="goToConfigPage" style="width: initial;padding-left: 20px; padding-right: 20px; margin-left: 10px;"> Change Files </button>
+            </div>
+        </div>
+        <div style="flex-grow: 1; overflow-y: scroll;">
+            <table class="table" x-on:click="hideInputMenu($event)">
+                <thead>
+                    <tr id="table-head-tr">
+                        <th>Key</th>
+                        <template x-for="file in files">
+                            <th x-text="file"></th>
+                        </template>
+                        <th style="width: 3.5rem;">-</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <template x-for="row in map">
+                        <tr>
+                            <td>
+                                <input type="text" x-bind:value="row.key" x-on:change.debounce="update($event, row.key, true)" style="font-weight: bold;" required="required" x-on:focus="focusInput" x-on:blur="unfocusInput" data-index="-2">
+                            </td>
+                            <template x-for="(val, index) in row.value">
+                                <td>
+                                    <input 
+                                    type="text" required="required" 
+                                    x-bind:value="val" 
+                                    x-bind:data-index="index" 
+                                    x-on:focus="focusInput" 
+                                    x-on:change.debounce="update($event, row.key, false)" 
+                                    x-on:blur="unfocusInput" 
+                                    x-on:contextmenu="showInputMenu(event, row, index)" 
+                                    x-on:click="hideInputMenu($event)"
+                                    x-bind:disabled="row.key.length == 0"
+                                >
+                                </td>
+                            </template>
+                            <td class="td-actions">
+                                <div>
+                                    <button x-on:click="deleteRow(row.key)"> 
+                                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" width="24" height="24" preserveAspectRatio="xMidYMid meet" viewBox="0 0 48 48"><rect x="0" y="0" width="48" height="48" fill="none" stroke="none" /><g fill="none"><path d="M24 6.75a6.25 6.25 0 0 1 6.246 6.02l.004.231L37 13a1.75 1.75 0 0 1 .144 3.494L37 16.5h-1.167l-1.627 21.57A4.25 4.25 0 0 1 29.968 42H18.032a4.25 4.25 0 0 1-4.238-3.93L12.166 16.5H11a1.75 1.75 0 0 1-1.744-1.607l-.006-.143a1.75 1.75 0 0 1 1.607-1.744L11 13h6.75c0-3.298 2.555-6 5.794-6.234l.227-.012L24 6.75zm3.75 13a1.25 1.25 0 0 0-1.244 1.122L26.5 21v12l.006.128a1.25 1.25 0 0 0 2.488 0L29 33V21l-.006-.128a1.25 1.25 0 0 0-1.244-1.122zm-7.5 0a1.25 1.25 0 0 0-1.244 1.122L19 21v12l.006.128a1.25 1.25 0 0 0 2.488 0L21.5 33V21l-.006-.128a1.25 1.25 0 0 0-1.244-1.122zm3.918-9.495L24 10.25a2.75 2.75 0 0 0-2.745 2.582l-.005.169l5.5-.001a2.75 2.75 0 0 0-2.582-2.745z" fill="currentColor"/></g></svg> 
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
 	</div>
 	<script>
 		function getData(){
