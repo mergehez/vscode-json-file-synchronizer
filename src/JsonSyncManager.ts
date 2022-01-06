@@ -134,8 +134,8 @@ export class JsonSyncManager {
 		if(!filesPaths){
 			this._panel.webview.html = htmlContent;
 		}else{
-			const alpineScriptUri = vscode.Uri.joinPath(this._extensionUri, 'media', 'alpine.js').with({ 'scheme': 'vscode-resource' });
-			const vscodeCssUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'vscode.css'));
+			const alpineScriptUri = vscode.Uri.joinPath(this._extensionUri, 'src', 'alpine.js').with({ 'scheme': 'vscode-resource' });
+			const vscodeCssUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'src', 'vscode.css'));
 	
 			this._panel.webview.html = htmlContent
 				.replace("[vscodeCssUri]", vscodeCssUri.toString())
@@ -143,7 +143,6 @@ export class JsonSyncManager {
 				.replace("[cspSource]", webview.cspSource)
 				.replace("[MAP]", JSON.stringify(this._translations.map))
 				.replace("[FILES]", JSON.stringify(this._translations.fileNames))
-				.replace("<curr_time/>", Date.now().toString())
 				.replace("[SAVEONCHANGE]", getConfig("saveOnChange", false) ? "true" : "false");
 				
 			// this._panel.webview.postMessage({ command: 'json', json: this._translations });
