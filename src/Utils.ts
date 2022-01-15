@@ -4,8 +4,8 @@ import * as path from 'path';
 
 const _configFileName = "arg-json-file-sync.json";
 
-export function openFileInSrc(thisContextExtensionPath: string, fileName: string){
-	const pathToFile = vscode.Uri.file( path.join(thisContextExtensionPath, 'src', fileName) );
+export function openFileFromMedia(thisContextExtensionPath: string, fileName: string){
+	const pathToFile = vscode.Uri.file( path.join(thisContextExtensionPath, 'media', fileName) );
 	return fs.readFileSync(pathToFile.with({ scheme: 'vscode-resource' }).fsPath, 'utf8');
 }
 

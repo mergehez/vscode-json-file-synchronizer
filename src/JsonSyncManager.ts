@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { getWebviewOptions } from './extension';
 import JsonList from './JsonList';
-import { getFilesInFolder, getConfig, setConfig, openFileInSrc } from './Utils';
+import { getFilesInFolder, getConfig, setConfig, openFileFromMedia } from './Utils';
 
 export class JsonSyncManager {
 	public static currentPanel: JsonSyncManager | undefined;
@@ -117,7 +117,7 @@ export class JsonSyncManager {
 	}
 
     private _goToConfigPage(sendFileList = false){
-		const htmlContent = openFileInSrc(this._context.extensionPath, "config.html");
+		const htmlContent = openFileFromMedia(this._context.extensionPath, "config.html");
         const fileExts = getConfig("fileExtensions", ["json"]);
         const folder = getConfig("folder", "");
         this._panel.webview.html = htmlContent
@@ -141,10 +141,10 @@ export class JsonSyncManager {
 			}
 		}
 
-        const alpineScriptUri = vscode.Uri.joinPath(this._extensionUri, 'src', 'alpine.js').with({ 'scheme': 'vscode-resource' });
-        const vscodeCssUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'src', 'vscode.css'));
+        const alpineScriptUri = vscode.Uri.joinPath(this._extensionUri, 'media', 'alpine.js').with({ 'scheme': 'vscode-resource' });
+        const vscodeCssUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'vscode.css'));
         
-		const htmlContent = openFileInSrc(this._context.extensionPath, "index.html");
+		const htmlContent = openFileFromMedia(this._context.extensionPath, "index.html");
         this._panel.webview.html = htmlContent
             .replace("[vscodeCssUri]", vscodeCssUri.toString())
             .replace("[alpineScriptUri]", alpineScriptUri.toString())

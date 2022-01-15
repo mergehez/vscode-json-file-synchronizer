@@ -28,8 +28,8 @@ export function getWebviewOptions(extensionUri: vscode.Uri): vscode.WebviewPanel
 		enableScripts: true,
 		
 		retainContextWhenHidden: true,
-		// And restrict the webview to only loading content from our extension's `src` directory.
-		localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'src')]
+		// And restrict the webview to only loading content from our extension's `media` directory.
+		localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'media')]
 	};
 }
 
