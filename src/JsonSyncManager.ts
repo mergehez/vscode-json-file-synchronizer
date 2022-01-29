@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
+import ConfigManager from './Config';
 import { getWebviewOptions } from './extension';
 import JsonList from './JsonList';
-import { getFilesInFolder, getConfig, setConfig, openFileFromMedia } from './Utils';
+import { getFilesInFolder, openFileFromMedia } from './Utils';
 
 export class JsonSyncManager {
 	public static currentPanel: JsonSyncManager | undefined;
@@ -12,6 +13,7 @@ export class JsonSyncManager {
 	private readonly _context: vscode.ExtensionContext;
 	private readonly _extensionUri: vscode.Uri;
 	private _disposables: vscode.Disposable[] = [];
+    private _configManager : ConfigManager = new ConfigManager();
 
 	private readonly _translations: JsonList = new JsonList();
 
@@ -73,6 +75,7 @@ export class JsonSyncManager {
 						vscode.window.showErrorMessage(message.text);
 						return;
 					case 'refresh':
+                        console.log("refresh called");
 						this._refresh(true, true);
 						
 						return;
@@ -88,7 +91,9 @@ export class JsonSyncManager {
 						return;
 					}
 					case 'setConfig':{
-						setConfig(message.key, message.value);
+                        const conf = JSON.parse(message.configJsonStr);
+                        this._configManager.update(conf);
+						// setConfig(message.key, message.value);
 						if(message.refresh && message.refresh === 1){
 							this._refresh(true, true);
 						}
@@ -96,8 +101,9 @@ export class JsonSyncManager {
 					}
 					case 'getFilesInFolder':{
                         const exts = message.fileExts;
-						const fileNames = getFilesInFolder(message.folderPath, message.recursive, exts);
-						this._panel.webview.postMessage({ command: 'file-list', list: fileNames ?? "directory not found" });
+                        const regexFilter = message.regexFilter;
+						const filePaths = getFilesInFolder(message.folderPath, message.recursive, exts, regexFilter);
+						this._panel.webview.postMessage({ command: 'file-list', list: filePaths ?? "directory not found" });
 						return;
 					}
 				}
@@ -106,6 +112,7 @@ export class JsonSyncManager {
 			this._disposables
 		);
 	}
+    
 	private _refresh(clearData = false, resetHtml = true) {
 		if(clearData){
 			this._translations.clear();
@@ -118,23 +125,31 @@ export class JsonSyncManager {
 
     private _goToConfigPage(sendFileList = false){
 		const htmlContent = openFileFromMedia(this._context.extensionPath, "config.html");
-        const fileExts = getConfig("fileExtensions", ["json"]);
-        const folder = getConfig("folder", "");
+        this._configManager.reinit();
+        const configArr = this._configManager.createJsonStr();
+
+        const alpineScriptUri = vscode.Uri.joinPath(this._extensionUri, 'media', 'alpine.js').with({ 'scheme': 'vscode-resource' });
+        const vscodeCssUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'vscode.css'));
         this._panel.webview.html = htmlContent
-            .replace("[FOLDER]", folder)
-            .replace("[FILEEXTS]", fileExts.join(", "));
+            .replace("[vscodeCssUri]", vscodeCssUri.toString())
+            .replace("[alpineScriptUri]", alpineScriptUri.toString())
+            .replace("[cspSource]", this._panel.webview.cspSource)
+            .replace("[CONFIG_ARR]", configArr);
+        
         if(sendFileList){
-            const filesPaths = getConfig("files", undefined);
+            const filesPaths = this._configManager.activeConfig?.filePaths ?? undefined;
             this._panel.webview.postMessage({ command: 'file-list', list: filesPaths ?? "directory not found" });
         }
     }
 
 	private _getHtmlForWebview(webview: vscode.Webview) {
-		const filesPaths = getConfig("files", undefined);
-		if(!filesPaths){
+        if(!this._configManager.hasConfigs){
+            this._configManager.update([{"key": "new1", "active": true}]);
             this._goToConfigPage();
             return;
-		}else if(this._translations.filePaths.length === 0) {
+        }
+		const filesPaths = this._configManager.activeConfig?.filePaths ?? [];
+		if(this._translations.filePathsNoRoot.length === 0) {
 			const workspacePaths = vscode.workspace.workspaceFolders;
 			if (workspacePaths) {
 				this._translations.init(workspacePaths[0].uri.fsPath, filesPaths);
@@ -145,15 +160,19 @@ export class JsonSyncManager {
         const vscodeCssUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'vscode.css'));
         
 		const htmlContent = openFileFromMedia(this._context.extensionPath, "index.html");
-        this._panel.webview.html = htmlContent
+        this._panel.webview.html = 
+            '<div style="display: flex;justify-items:center;align-items:center; width:100vw;height:100vh;">'+
+                '<span style="flex-grow:1;text-align:center;font-size:3.5em;">loading...</span>'+
+            '</div>';
+        setTimeout(() => {
+            this._panel.webview.html = htmlContent
             .replace("[vscodeCssUri]", vscodeCssUri.toString())
             .replace("[alpineScriptUri]", alpineScriptUri.toString())
             .replace("[cspSource]", webview.cspSource)
             .replace("[MAP]", JSON.stringify(this._translations.map))
-            .replace("[FILES]", JSON.stringify(this._translations.fileNames))
-            .replace("[SAVEONCHANGE]", getConfig("saveOnChange", false) ? "true" : "false");
-            
-        // this._panel.webview.postMessage({ command: 'json', json: this._translations });
+            .replace("[FILE_PATHS]", JSON.stringify(this._translations.filePathsNoRoot))
+            .replace("[CONFIG_ARR]", this._configManager.createJsonStr());
+        }, 350);
 	}
 }
 

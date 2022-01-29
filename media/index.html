@@ -23,11 +23,23 @@
                 <button x-on:click="refresh" style="width: initial;padding-left: 20px; padding-right: 20px; margin-left: 10px;"> Refresh Table </button>
                 <button x-on:click="updateFile(-2)" style="width: initial;padding-left: 20px; padding-right: 20px; margin-left: 10px;"> Save Changes </button>
                 <div style="display: flex; align-items: center; padding:0 10px;">
-                    <input type="checkbox" id="input-recursive" x-model="saveOnChange" x-on:change="setConfigSaveOnChange" style="height: 20px; width: 20px;">
+                    <input type="checkbox" id="input-recursive" x-model="activeConfig.tableSaveOnChange" x-on:change="postConfig(false)" style="height: 20px; width: 20px;">
                     <label for="input-recursive" style="padding-left: 2px;">Save on Change</label>
                 </div>
+                <div style="display: flex; align-items: center; padding:0 10px;">
+                    <input type="checkbox" id="input-filter-empty" x-model="activeConfig.tableFilterEmpty" x-on:change="postConfig(false)" style="height: 20px; width: 20px;">
+                    <label for="input-filter-empty" style="padding-left: 2px;">Only empty fields</label>
+                </div>
                 <div style="flex-grow: 1;"></div>
-                <button x-on:click="goToConfigPage" style="width: initial;padding-left: 20px; padding-right: 20px; margin-left: 10px;"> Change Files </button>
+                <div style="display: flex; align-items: center; padding:0 10px;">
+                    <label for="input-select-project" style="padding-right: 10px;">Current Project: </label>
+                    <select x-on:change="changeProject" id="input-select-project" style="padding: 5px 10px;">
+                        <template x-for="conf in configs">
+                            <option x-bind:value="conf.key" x-text="conf.key.toUpperCase()" x-bind:selected="conf.key == activeConfig?.key"></option>
+                        </template>
+                    </select>
+                </div>
+                <button x-on:click="goToConfigPage" style="width: initial;padding-left: 20px; padding-right: 20px; margin-left: 10px;"> Configuration </button>
             </div>
         </div>
         <div style="flex-grow: 1; overflow-y: scroll;">
@@ -43,7 +55,7 @@
                 </thead>
                 <tbody id="table-body">
                     <template x-for="row in map">
-                        <tr>
+                        <tr x-show="showRow(row)">
                             <td>
                                 <input type="text" x-bind:value="row.key" x-on:change.debounce="update($event, row.key, true)" style="font-weight: bold;" required="required" x-on:focus="focusInput" x-on:blur="unfocusInput" data-index="-2">
                             </td>
@@ -80,18 +92,23 @@
 			const vscode = acquireVsCodeApi();
 			return {
 				map: [MAP],
-				files: [FILES],
-				saveOnChange : [SAVEONCHANGE],
+                configs: [CONFIG_ARR],
+                activeConfig: {},
+				files: [FILE_PATHS],
 				contextMenuOpen: false,
 				menuData : {rowKey: "", fileIndex: -1, style : 'display:none;'},
 				init(){
+                    console.log("initing")
+                    this.activeConfig = this.configs.filter(t => t.active)[0] ?? this.configs[0];
 					const self = this;
+                    self.files = self.files.map(t => t.split("\\").pop());
 					window.addEventListener('message', event => {
 						const message = event.data; 
 						switch (message.command) {
 							case 'json' : 
 								const json = message.json;
-								self.files = json.data._fileNames;
+                                console.log("splitting")
+								self.files = json.data._fileNames.map(t => t.split("\\").pop());
 								self.map = json.data._map;
 								break;
 						}
@@ -117,9 +134,9 @@
 						this.updateFile(-2);
 					}
 				},
-				refresh(){
-					vscode.postMessage({ command: 'refresh' });
-				},
+                showRow(row){
+                    return !this.activeConfig.tableFilterEmpty || row.value.filter(t => t == null || t.toString().trim().length == 0).length > 0;
+                },
 				showInputMenu(e, row, index){
 					e.preventDefault();
 					this.menuData = {
@@ -144,15 +161,9 @@
 					this.hideInputMenu();
 				},
 				menuPasteKey(){
-					// var ctxMenu = document.getElementById("ctxMenu");
-					// var key = ctxMenu.dataset.key;
-					// var fileIndex = ctxMenu.dataset.fileIndex;
 					const row = this.map.find(r => r.key == this.menuData.rowKey);
 					row.value[this.menuData.fileIndex] = this.menuData.rowKey;
 					this.hideInputMenu();
-					// if(this.saveOnChange){
-					// 	this.updateFile(fileIndex);
-					// }
 				},
 				focusInput(e){
 					e.target.parentNode.parentNode.classList.add("focused");
@@ -168,30 +179,50 @@
 					}else{
 						row.value[index] = e.target.value;
 					}
-					if(this.saveOnChange){
+					if(this.activeConfig.tableSaveOnChange){
 						this.updateFile(index);
 					}
 				},
+				refresh(){
+                    setTimeout(() => {
+                        vscode.postMessage({ command: 'refresh' });
+                    }, 500);
+				},
 				updateFile(fileIndex){
-					vscode.postMessage({ 
-						command: 'updateFile', 
-						data: JSON.stringify( {
-							"fileIndex" : fileIndex,
-							"map" : this.map
-						})
-					});
+                    setTimeout(() => {
+                        vscode.postMessage({ 
+                            command: 'updateFile', 
+                            data: JSON.stringify( {
+                                "fileIndex" : fileIndex,
+                                "map" : this.map
+                            })
+                        });
+                    }, 500);
 				},
-				setConfigSaveOnChange(){
-					vscode.postMessage({ 
-						command: 'setConfig', 
-						key : "saveOnChange",
-						value: this.saveOnChange,
-						refresh: 0
-					});
-				},
+                postConfig(refresh = false){
+                    setTimeout(() => {
+                        vscode.postMessage({ 
+                            command: 'setConfig', 
+                            configJsonStr : JSON.stringify(this.configs),
+                            refresh: refresh ? 1 : 0
+                        });
+                    }, 500);
+                },
 				goToConfigPage(){
 					vscode.postMessage({ 
 						command: 'goToConfigPage'
+					});
+				},
+				changeProject(e){
+                    console.log(e.target.value);
+                    this.configs.forEach(t => {
+                        t.active = false;
+                    });
+                    this.configs.filter(t => t.key == e.target.value)[0].active = true;
+					vscode.postMessage({ 
+						command: 'setConfig', 
+						configJsonStr : JSON.stringify(this.configs),
+						refresh: 1
 					});
 				}
 			};

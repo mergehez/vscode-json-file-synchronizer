@@ -61,6 +61,7 @@ button {
 	outline-offset: 2px !important;
 	color: var(--vscode-button-foreground);
 	background: var(--vscode-button-background);
+    border-radius: 3px;
 }
 
 button:hover {
@@ -179,4 +180,62 @@ tr.focused > td{
 }
 #ctxMenu li:hover{
 	background-color:#eee;
+}
+
+
+.button-list-item{
+    font-weight: bold;
+    border-bottom: 0.5px solid #eee;
+    width: 100%;
+    font-size: 1.2em;
+    line-height: 1.5;
+    cursor: pointer;
+}
+.button-list-item > span{
+    padding:1rem;
+}
+.button-list-item.active{
+    background-color: rgb(215, 235, 209);
+}
+.button-list-item:hover{
+    background-color: #eee;
+}
+
+/* The Modal (background) */
+.modal {
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+    /* Modal Content */
+.modal-content {
+    position: relative;
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
+
+    /* The Close Button */
+.modal .close {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    padding:5px;
+    height: 30px;
+    width: 30px;
+}
+
+svg, img{
+    max-height: 100%;
+    max-width: 100%;
 }

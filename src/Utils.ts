@@ -45,7 +45,7 @@ export function getConfig<T>(key: string, defaultValue: T) : T {
 	return config[key] ?? defaultValue;
 }
 
-export function getFilesInFolder(folderPath: string, recursive: boolean, exts = ["json"]){
+export function getFilesInFolder(folderPath: string, recursive: boolean, exts = "json", regexFilter = ""){
 	const workspacePaths = vscode.workspace.workspaceFolders;
 	if(workspacePaths){
 		const rootPath = workspacePaths[0].uri.fsPath;
@@ -54,27 +54,27 @@ export function getFilesInFolder(folderPath: string, recursive: boolean, exts = 
 			return undefined;
 		}
 		if(recursive){
-			return findInDir(pathsString, exts, [], rootPath);
+			return findInDir(pathsString, exts, [], regexFilter.length > 0 ? new RegExp(regexFilter) : null, rootPath);
         }
 
 		const fileNames = fs.readdirSync(pathsString);
-		return fileNames.filter(f => exts.filter(ext => f.endsWith(`.${ext}`)).length > 0);
+		return fileNames.filter(f => exts.split(",").map(t => t.trim()).filter(ext => f.endsWith(`.${ext}`)).length > 0);
 	}
 	return undefined;
 }
 
-function findInDir (dir : string, exts = ["json"], fileList = new Array<string>(), replace = "") {
+function findInDir (dir : string, exts = "json", fileList = new Array<string>(), regExp : RegExp | null, replace = "") {
 	const files = fs.readdirSync(dir);
 
 	files.forEach((file) => {
 		const filePath = path.join(dir, file);
   
 		if (fs.lstatSync(filePath).isDirectory()) {
-			findInDir(filePath, exts, fileList, replace);
+			findInDir(filePath, exts, fileList, regExp, replace);
             return;
 		}
 
-        if (file === _configFileName || exts.filter(ext => file.endsWith(`.${ext}`)).length === 0){
+        if (file === _configFileName || exts.split(",").map(t => t.trim()).filter(ext => file.endsWith(`.${ext}`)).length === 0){
             return;
         }
 
@@ -82,6 +82,13 @@ function findInDir (dir : string, exts = ["json"], fileList = new Array<string>(
         if(res.length > 0 && (res[0] === "/" || res[0] === "\\")){
             res = res.substring(1);
         }
+        if(regExp !== null){
+            if(regExp.test(res)){
+                fileList.push(res);
+            }
+            return;
+        }
+
         fileList.push(res);
 	});
   

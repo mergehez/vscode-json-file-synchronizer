@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-class KeyValue<T> {
+export class KeyValue<T> {
 	key: string;
 	value: T;
 	constructor(key: string, value: T) {
@@ -20,14 +20,9 @@ class Data{
 		return this._rootPath;
 	}
 	
-	private _fileNames: string[] = [];
-	public get fileNames(): string[] {
-		return this._fileNames;
-	}
-	
-	private _filePaths: string[] = [];
-	public get filePaths(): string[] {
-		return this._filePaths;
+	private _filePathsNoRoot: string[] = [];
+	public get filePathsNoRoot(): string[] {
+		return this._filePathsNoRoot;
 	}
 	
 	constructor() {
@@ -36,8 +31,7 @@ class Data{
 
 	public init(rootPath: string, filePathsWithoutRoot: string[]){
 		this._rootPath = rootPath;
-		this._filePaths = filePathsWithoutRoot;
-		this._fileNames = filePathsWithoutRoot.map(x => path.parse(x).base);
+		this._filePathsNoRoot = filePathsWithoutRoot;
 	}
 	public setMap(map: Array<KeyValue<string[]>>) {
 		this._map = map;
@@ -45,8 +39,7 @@ class Data{
 	public clear() {
 		this._rootPath = "";
 		this._map = [];
-		this._filePaths = [];
-		this._fileNames = [];
+		this._filePathsNoRoot = [];
 	}
 }
 
@@ -60,23 +53,19 @@ export default class JsonList{
 	public get rootPath(): string {
 		return this.data.rootPath;
 	}
-	public get fileNames(): string[] {
-		return this.data.fileNames;
+
+	public get filePathsNoRoot(): string[] {
+		return this.data.filePathsNoRoot;
 	}
 
-	public get filePaths(): string[] {
-		return this.data.filePaths;
+	private _getFileIndex(filePathNoRoot: string){
+		return this.filePathsNoRoot.indexOf(filePathNoRoot);
 	}
 
-	private _getFileIndex(fileName: string){
-		return this.fileNames.indexOf(fileName);
-	}
-
-	public init(rootPath: string, filePathsWithoutRoot: string[]){
-		this.data.init(rootPath, filePathsWithoutRoot);
-		for (let i = 0; i < this.filePaths.length; i++) {
-			const filePath = this.filePaths[i];
-			this.parseJsonFile(filePath);
+	public init(rootPath: string, filePathsNoRoot: string[]){
+		this.data.init(rootPath, filePathsNoRoot);
+		for (let i = 0; i < this.filePathsNoRoot.length; i++) {
+			this.parseJsonFile(this.filePathsNoRoot[i]);
 		}
 		this.sort();
 	}
@@ -92,29 +81,30 @@ export default class JsonList{
 		this.data.clear();
 	}
 
-	private _addValue(fileName: string, key: string, value: string) {
-		const fileIndex = this._getFileIndex(fileName);
+	private _addValue(filePathNoRoot: string, key: string, value: string) {
+		const fileIndex = this._getFileIndex(filePathNoRoot);
 		if (fileIndex === -1) {
 			throw new Error("file not found");
 		}
 
 		let keyValues = this.map.find(x => x.key === key);
 		if(keyValues === undefined){
-			keyValues = new KeyValue<string[]>(key, new Array(this.fileNames.length).fill(""));
+			keyValues = new KeyValue<string[]>(key, new Array(this.filePathsNoRoot.length).fill(""));
 			this.map.push(keyValues);
 		}
 
 		keyValues.value[fileIndex] = value;
 	}
 
-	private parseJsonFile(filePathWithoutRoot: string){
-        const filePathFull = path.join(this.rootPath, filePathWithoutRoot);
+	private parseJsonFile(filePathNoRoot: string){
+        const filePathFull = path.join(this.rootPath, filePathNoRoot);
         const json = JSON.parse(fs.readFileSync(filePathFull, 'utf8'));
-        const fileName = path.parse(filePathWithoutRoot).base;
+        // const fileName = path.parse(filePathWithoutRoot).base;
 
         for (const key in json) {
             if (Object.prototype.hasOwnProperty.call(json, key)) {	
-                this._addValue(fileName, key, json[key]);
+                this._addValue(filePathNoRoot, key, json[key]);
+                // this._addValue(fileName, key, json[key]);
             }
         }
 	}
@@ -128,7 +118,7 @@ export default class JsonList{
 	}
 
 	public writeAllToFile(){
-		for(let i = 0; i < this.filePaths.length; i++){
+		for(let i = 0; i < this.filePathsNoRoot.length; i++){
 			this.writeToFile(i);
 		}
 	}
@@ -137,7 +127,7 @@ export default class JsonList{
 		if(fileIndex === -2){
 			this.writeAllToFile();
 		}else{
-			const filePathFull = path.join(this.rootPath, this.filePaths[fileIndex]);
+			const filePathFull = path.join(this.rootPath, this.filePathsNoRoot[fileIndex]);
 			const mapFile: { [key: string]: any } = {};
 
 			this.map.forEach(x => {
