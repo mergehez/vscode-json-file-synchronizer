@@ -1,6 +1,6 @@
 ## Features
 
-Synchronizes json files by keys. A use case is managing i18next translations.
+Synchronizes json files by keys. A use case is managing localization files.
 
 
 ![Screenshot](https://raw.githubusercontent.com/mergehez/vscode-json-file-synchronizer/master/images/screenshot2.JPG)
@@ -12,6 +12,13 @@ Synchronizes json files by keys. A use case is managing i18next translations.
 ## Install
 
 You can install it in VSCode Extension panel by searching "Json File Synchronizer" or from here: https://marketplace.visualstudio.com/items?itemName=MergeSoft.arg-json-file-synchronizer
+
+### Features to be implemented
+
+- Exporting as CSV, XML, JSON...
+- Copying row or column (only cell can be copied currently)
+- Support for nested json
+- Support for arb files
 
 
 ## Requirements
