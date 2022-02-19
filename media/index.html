@@ -63,6 +63,7 @@
                                 <td>
                                     <input 
                                     type="text" required="required" 
+                                    x-bind:readonly="typeof val == 'object'"
                                     x-bind:value="val" 
                                     x-bind:data-index="index" 
                                     x-on:focus="focusInput" 
