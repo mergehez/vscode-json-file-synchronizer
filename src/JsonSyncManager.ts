@@ -19,19 +19,25 @@ export class JsonSyncManager {
 
 	public static createOrShow(extensionUri: vscode.Uri, context: vscode.ExtensionContext) {
         
-		const column = vscode.window.activeTextEditor
-			? vscode.window.activeTextEditor.viewColumn
-			: undefined;
+		// const column = vscode.window.activeTextEditor
+		// 	? vscode.window.activeTextEditor.viewColumn
+		// 	: undefined;
             
-		if (JsonSyncManager.currentPanel) {
-			JsonSyncManager.currentPanel._panel.reveal(column);
-			return;
-		}
+		// if (column && JsonSyncManager.currentPanel) {
+		// 	JsonSyncManager.currentPanel._panel.reveal(column);
+		// 	return;
+		// }
 
+		// const panel = vscode.window.createWebviewPanel(
+		// 	JsonSyncManager.viewType,
+		// 	'JSON File Synchronizer',
+		// 	column || vscode.ViewColumn.One,
+		// 	getWebviewOptions(extensionUri)
+		// );
 		const panel = vscode.window.createWebviewPanel(
 			JsonSyncManager.viewType,
 			'JSON File Synchronizer',
-			column || vscode.ViewColumn.One,
+			vscode.ViewColumn.One,
 			getWebviewOptions(extensionUri)
 		);
 
