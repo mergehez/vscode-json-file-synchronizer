@@ -1,13 +1,15 @@
 {
 	"compilerOptions": {
 		"module": "commonjs",
-		"target": "ES2020",
+		"target": "ES2022",
 		"outDir": "out",
 		"lib": [
-			"ES2020"
+			"ES2022",
+            "DOM"
 		],
 		"sourceMap": true,
 		"rootDir": "src",
+        "skipLibCheck": true,
 		"strict": true   /* enable all strict type-checking options */
 		/* Additional Checks */
 		// "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
@@ -16,6 +18,10 @@
 	},
 	"exclude": [
 		"node_modules",
-		".vscode-test"
+		"**/node_modules",
+		".vscode-test",
+        "src/web",
+        "src/vue",
+        "vue",
 	]
 }

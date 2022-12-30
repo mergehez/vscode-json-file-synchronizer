@@ -1,0 +1,377 @@
+[
+    {
+        "key": "add",
+        "value": [
+            "Neu",
+            "Add enxop",
+            "Add esx",
+            "Add frx",
+            "Add",
+            "Nû",
+            "Ekle"
+        ]
+    },
+    {
+        "key": "close",
+        "value": [
+            "Schließen",
+            "Close",
+            "Close",
+            "Close",
+            "Close",
+            "Bigire",
+            "Kapat"
+        ]
+    },
+    {
+        "key": "color",
+        "value": [
+            "Farbe",
+            "Color",
+            "Color",
+            "Color",
+            "Color",
+            "Reng",
+            "Renk"
+        ]
+    },
+    {
+        "key": "dayNames",
+        "value": [
+            [
+                "Montag",
+                "Dienstag",
+                "Mittwoch",
+                "Donnerstag",
+                "Freitag",
+                "Samstag",
+                "Sonntag"
+            ],
+            [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ],
+            [
+                "Lunes",
+                "Martes",
+                "Miércoles",
+                "Jueves",
+                "Viernes",
+                "Sábado",
+                "Domingo"
+            ],
+            [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ],
+            [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ],
+            [
+                "Duşem",
+                "Sêşem",
+                "Çarşem",
+                "Pêncşem",
+                "În",
+                "Şemî",
+                "Yekşem"
+            ],
+            [
+                "Pazartesi",
+                "Salı",
+                "Çarşamba",
+                "Perşembe",
+                "Cuma",
+                "Cumartesi",
+                "Pazar"
+            ]
+        ]
+    },
+    {
+        "key": "description",
+        "value": [
+            "Bezeichnung",
+            "Description",
+            "Description",
+            "Description",
+            "Description",
+            "Danasîn",
+            "Açıklama"
+        ]
+    },
+    {
+        "key": "end",
+        "value": [
+            "Ende",
+            "End",
+            "End",
+            "End",
+            "End",
+            "Dawî",
+            "Bitiş"
+        ]
+    },
+    {
+        "key": "error",
+        "value": [
+            "Fehler",
+            "Error",
+            "Error",
+            "Error",
+            "Error",
+            "Xeta",
+            "Hata"
+        ]
+    },
+    {
+        "key": "event",
+        "value": [
+            "Event",
+            "event",
+            "event",
+            "event",
+            "event",
+            "çalakî",
+            "etkinlik"
+        ]
+    },
+    {
+        "key": "events",
+        "value": [
+            "Events",
+            "events",
+            "events",
+            "events",
+            "events",
+            "çalakî",
+            "etkinlik"
+        ]
+    },
+    {
+        "key": "from",
+        "value": [
+            "Von",
+            "From",
+            "From",
+            "From",
+            "From",
+            "Ji",
+            "Başlangıç"
+        ]
+    },
+    {
+        "key": "language",
+        "value": [
+            "Sprache",
+            "Language",
+            "Language",
+            "Language",
+            "Language",
+            "Ziman",
+            "Dil"
+        ]
+    },
+    {
+        "key": "monthNames",
+        "value": [
+            [
+                "Januar",
+                "Februar",
+                "März",
+                "April",
+                "Mai",
+                "Juni",
+                "Juli",
+                "August",
+                "September",
+                "Oktober",
+                "November",
+                "Dezember"
+            ],
+            [
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December"
+            ],
+            [
+                "Enero",
+                "Febrero",
+                "Marzo",
+                "Abril",
+                "Mayo",
+                "Junio",
+                "Julio",
+                "Agosto",
+                "Septiembre",
+                "Octubre",
+                "Noviembre",
+                "Diciembre"
+            ],
+            [
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December"
+            ],
+            [
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December"
+            ],
+            [
+                "Rêbendan",
+                "Sibat",
+                "Adar",
+                "Nîsan",
+                "Gulan",
+                "Hezîran",
+                "Tîrmeh",
+                "Tebax",
+                "Îlon",
+                "Cotmeh",
+                "Mijdar",
+                "Berfanbar"
+            ],
+            [
+                "Ocak",
+                "Şubat",
+                "Mart",
+                "Nisan",
+                "Mayıs",
+                "Haziran",
+                "Temmuz",
+                "Ağustos",
+                "Eylül",
+                "Ekim",
+                "Kasım",
+                "Aralık"
+            ]
+        ]
+    },
+    {
+        "key": "Opening Hours",
+        "value": [
+            "Öffnungszeiten",
+            "Opening Hours",
+            "",
+            "",
+            "",
+            "Saetên Vebûnê",
+            "Açılış Saatleri"
+        ]
+    },
+    {
+        "key": "saveChanges",
+        "value": [
+            "Speichern",
+            "Save Changes",
+            "Save Changes",
+            "Save Changes",
+            "Save Changes",
+            "Qeyd Bike",
+            "Kaydet"
+        ]
+    },
+    {
+        "key": "Send us a message",
+        "value": [
+            "Sende uns eine Nachricht",
+            "Send us a message",
+            "",
+            "",
+            "",
+            "Ji me re peyamekê bişine",
+            "Bize yaz"
+        ]
+    },
+    {
+        "key": "start",
+        "value": [
+            "Beginn",
+            "Start",
+            "Start",
+            "Start",
+            "Start",
+            "Destpêk",
+            "Başlangıç"
+        ]
+    },
+    {
+        "key": "title",
+        "value": [
+            "Name",
+            "Title",
+            "Title",
+            "Title",
+            "Title",
+            "Nav",
+            "Konu"
+        ]
+    },
+    {
+        "key": "to",
+        "value": [
+            "Bis",
+            "To",
+            "To",
+            "To",
+            "To",
+            "Heta",
+            "Bitiş"
+        ]
+    },
+    {
+        "key": "toCurrentMonth",
+        "value": [
+            "Zum aktuellen Monat",
+            "To current month",
+            "To current month",
+            "To current month",
+            "To current month",
+            "Biçe meha niha",
+            "Şimdiki aya git"
+        ]
+    }
+]

@@ -1,45 +1,39 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { JsonRow } from './Types';
 
-export class KeyValue<T> {
-	key: string;
-	value: T;
-	constructor(key: string, value: T) {
-		this.key = key;
-		this.value = value;
-	}
-}
 
 class Data{
-	private _map: Array<KeyValue<string[]>> = [];
-	public get map(): Array<KeyValue<string[]>> {
+	private _map: Array<JsonRow> = [];
+	public get map(): Array<JsonRow> {
 		return this._map;
 	}
-	private _rootPath: string;
-	public get rootPath(): string {
-		return this._rootPath;
+	private _dir: string;
+	public get dir(): string {
+		return this._dir;
 	}
 	
-	private _filePathsNoRoot: string[] = [];
-	public get filePathsNoRoot(): string[] {
-		return this._filePathsNoRoot;
+	private _fileNames: string[] = [];
+	public get fileNames(): string[] {
+		return this._fileNames;
 	}
 	
 	constructor() {
-		this._rootPath = "";
+		this._dir = "";
 	}
 
-	public init(rootPath: string, filePathsWithoutRoot: string[]){
-		this._rootPath = rootPath;
-		this._filePathsNoRoot = filePathsWithoutRoot;
+	public init(dir: string, fileNames: string[]){
+		this._map = [];
+		this._dir = dir;
+		this._fileNames = fileNames;
 	}
-	public setMap(map: Array<KeyValue<string[]>>) {
+	public setMap(map: Array<JsonRow>) {
 		this._map = map;
 	}
 	public clear() {
-		this._rootPath = "";
+		this._dir = "";
 		this._map = [];
-		this._filePathsNoRoot = [];
+		this._fileNames = [];
 	}
 }
 
@@ -47,30 +41,30 @@ class Data{
 export default class JsonList{
 	private data : Data = new Data();
 	
-	public get map(): Array<KeyValue<string[]>> {
+	public get map(): Array<JsonRow> {
 		return this.data.map;
 	}
-	public get rootPath(): string {
-		return this.data.rootPath;
+	public get dir(): string {
+		return this.data.dir;
 	}
 
-	public get filePathsNoRoot(): string[] {
-		return this.data.filePathsNoRoot;
+	public get fileNames(): string[] {
+		return this.data.fileNames;
 	}
 
-	private _getFileIndex(filePathNoRoot: string){
-		return this.filePathsNoRoot.indexOf(filePathNoRoot);
+	private _getFileIndex(fileName: string){
+		return this.fileNames.indexOf(fileName);
 	}
 
-	public init(rootPath: string, filePathsNoRoot: string[]){
-		this.data.init(rootPath, filePathsNoRoot);
-		for (let i = 0; i < this.filePathsNoRoot.length; i++) {
-			this.parseJsonFile(this.filePathsNoRoot[i]);
+	public init(dir: string, fileNames: string[]){
+		this.data.init(dir, fileNames);
+		for (let i = 0; i < this.fileNames.length; i++) {
+			this.parseJsonFile(this.fileNames[i]);
 		}
 		this.sort();
 	}
 	
-	public setMap(map: Array<KeyValue<string[]>>, sort = false) {
+	public setMap(map: Array<JsonRow>, sort = false) {
 		this.data.setMap(map);
 		if(sort){
 			this.sort();
@@ -81,29 +75,29 @@ export default class JsonList{
 		this.data.clear();
 	}
 
-	private _addValue(filePathNoRoot: string, key: string, value: string) {
-		const fileIndex = this._getFileIndex(filePathNoRoot);
+	private _addValue(fileName: string, key: string, value: string) {
+		const fileIndex = this._getFileIndex(fileName);
 		if (fileIndex === -1) {
 			throw new Error("file not found");
 		}
 
 		let keyValues = this.map.find(x => x.key === key);
 		if(keyValues === undefined){
-			keyValues = new KeyValue<string[]>(key, new Array(this.filePathsNoRoot.length).fill(""));
+			keyValues = new JsonRow(key, new Array(this.fileNames.length).fill(""));
 			this.map.push(keyValues);
 		}
 
 		keyValues.value[fileIndex] = value;
 	}
 
-	private parseJsonFile(filePathNoRoot: string){
-        const filePathFull = path.join(this.rootPath, filePathNoRoot);
+	private parseJsonFile(fileName: string){
+        const filePathFull = path.join(this.dir, fileName);
         const json = JSON.parse(fs.readFileSync(filePathFull, 'utf8'));
         // const fileName = path.parse(filePathWithoutRoot).base;
 
         for (const key in json) {
             if (Object.prototype.hasOwnProperty.call(json, key)) {	
-                this._addValue(filePathNoRoot, key, json[key]);
+                this._addValue(fileName, key, json[key]);
                 // this._addValue(fileName, key, json[key]);
             }
         }
@@ -111,14 +105,14 @@ export default class JsonList{
 
 	// sort map by string index
 	public sort() {
-        let map = this.map.sort((a: KeyValue<string[]>, b: KeyValue<string[]>) => {
+        let map = this.map.sort((a: JsonRow, b: JsonRow) => {
             return a.key.localeCompare(b.key, undefined, {ignorePunctuation: true});
         });
 		this.data.setMap(map);
 	}
 
 	public writeAllToFile(){
-		for(let i = 0; i < this.filePathsNoRoot.length; i++){
+		for(let i = 0; i < this.fileNames.length; i++){
 			this.writeToFile(i);
 		}
 	}
@@ -127,7 +121,7 @@ export default class JsonList{
 		if(fileIndex === -2){
 			this.writeAllToFile();
 		}else{
-			const filePathFull = path.join(this.rootPath, this.filePathsNoRoot[fileIndex]);
+			const filePathFull = path.join(this.dir, this.fileNames[fileIndex]);
 			const mapFile: { [key: string]: any } = {};
 
 			this.map.forEach(x => {

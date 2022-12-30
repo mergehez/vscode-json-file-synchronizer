@@ -3,10 +3,12 @@
 import * as vscode from 'vscode';
 import { JsonSyncManager } from './JsonSyncManager';
 
+// This method is called when your extension is activated
+// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-	context.subscriptions.push(
+    context.subscriptions.push(
         vscode.commands.registerCommand('arg-json-file-synchronizer.start', () => {
-            JsonSyncManager.createOrShow(context.extensionUri, context);
+            new JsonSyncManager(context.extensionUri, context);
         })
     );
     
@@ -15,12 +17,11 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.registerWebviewPanelSerializer(JsonSyncManager.viewType, {
             async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, state: any) {
                 webviewPanel.webview.options = getWebviewOptions(context.extensionUri);
-                JsonSyncManager.revive(webviewPanel, context.extensionUri, context);
+                new JsonSyncManager(context.extensionUri, context, webviewPanel);
             }
         });
     }
 }
-
 
 export function getWebviewOptions(extensionUri: vscode.Uri): vscode.WebviewPanelOptions & vscode.WebviewOptions {
 	return {
@@ -29,10 +30,12 @@ export function getWebviewOptions(extensionUri: vscode.Uri): vscode.WebviewPanel
 		
 		retainContextWhenHidden: true,
 		// And restrict the webview to only loading content from our extension's `media` directory.
-		localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'media')]
+		localResourceRoots: [
+            vscode.Uri.joinPath(extensionUri, 'media'), 
+            vscode.Uri.joinPath(extensionUri, 'ArgJsonTable'),
+        ]
 	};
 }
 
-
-// this method is called when your extension is deactivated
-export function deactivate() {}
+// This method is called when your extension is deactivated
+export function deactivate() { }
