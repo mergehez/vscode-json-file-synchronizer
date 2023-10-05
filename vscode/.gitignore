@@ -1,0 +1,8 @@
+out
+dist
+ArgJsonTable/
+node_modules
+.vscode/
+*.vsix
+.vscodeignore
+vsc-extension-quickstart.md
