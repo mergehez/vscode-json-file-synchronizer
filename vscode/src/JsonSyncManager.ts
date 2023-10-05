@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import { ColorThemeKind } from 'vscode';
 import ConfigManager from './ConfigManager';
 import { getWebviewOptions } from './extension';
-import JsonList from './JsonList';
 import { listenToRequestsFromVue, sendResponseToVue } from "./Bridge";
 import { GlobalStateHelper } from "./GlobalStateHelper";
 import { getFilesInFolder } from "./io";

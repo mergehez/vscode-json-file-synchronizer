@@ -3,7 +3,7 @@ import { computed, reactive, ref } from 'vue'
 import {Config, createEmptyJsonRow, JsonRow} from '@vscode/Types';
 import LoadingButton from './LoadingButton.vue';
 import Scaffold from './Scaffold.vue';
-import {loader, settings, postMessageToVsCode, subscribeToVsCodeResponse} from '../helpers'
+import {loader, settings, postMessageToVsCode} from '../helpers'
 import DeleteButton from "./DeleteButton.vue";
 
 const props = defineProps<{config: Config, translations: JsonRow[]}>();

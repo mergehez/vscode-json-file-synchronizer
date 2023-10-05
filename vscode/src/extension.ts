@@ -16,7 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (vscode.window.registerWebviewPanelSerializer) {
         // Make sure we register a serializer in activation event
         vscode.window.registerWebviewPanelSerializer(JsonSyncManager.viewType, {
-            async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, state: any) {
+            async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel) {
                 webviewPanel.webview.options = getWebviewOptions(context.extensionUri);
                 new JsonSyncManager(context.extensionUri, context, webviewPanel);
             }

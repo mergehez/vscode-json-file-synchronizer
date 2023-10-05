@@ -1,5 +1,3 @@
-import {JsonRow} from "@vscode/Types";
-
 const getTranslations = [
     {
         "key": "add",
