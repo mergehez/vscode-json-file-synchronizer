@@ -23,7 +23,9 @@ function addRow(){
     }, 200);
 }
 function showRow(row: JsonRow){
-    return props.config && (!props.config.tableFilterEmpty || row.value.filter(t => t == null || t.toString().trim().length == 0).length > 0);
+    return props.config && 
+    (row.key.toLowerCase().includes(q.value.toLowerCase())) &&
+    (!props.config.tableFilterEmpty || row.value.filter(t => t == null || t.toString().trim().length == 0).length > 0);
 }
 function deleteRow(row: JsonRow){
     const rowIndex = map.value.findIndex(r => r.key == row.key);
@@ -121,6 +123,7 @@ function saveAllIfCtrlS(e:KeyboardEvent){
         saveChanges();
     }else console.log(e.key)
 }
+const q = ref('');
 
 </script>
 <template>
@@ -155,6 +158,7 @@ function saveAllIfCtrlS(e:KeyboardEvent){
                     </template>
                 </select>
             </div>
+            <input type="text" v-model="q" class="rounded-sm py-1 px-2" placeholder="search key">
             <div class="flex-1"></div>
             <LoadingButton loader-target="go-to-config-page" @click="goToConfigPage()" class="btn btn-primary ml-2">
                 Configuration
