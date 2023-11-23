@@ -11,18 +11,8 @@ const props = defineProps<{
 }>();
 const emit = defineEmits(['selected'])
 
-subscribeToVsCodeResponse('getFilesInFolder', ({request, data ,success}) => {
-    if(request === 'getFilesInFolder'){
-        if(!success){
-            searchResults.value = [];
-        }else{
-            searchResults.value = data.map((t:any) => { return { checked: true, "value": t } as ConfigSearchResult; });
-        }
-    }
-});
 
 const currConfigs = ref(props.configs);
-const searchResults = ref<Array<ConfigSearchResult>>([]);
 
 function deleteConfig(c: Config){
     console.log("delete config", c)

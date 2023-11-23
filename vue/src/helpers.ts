@@ -39,7 +39,7 @@ export function updateCurrentTheme(){
 }
 
 
-const subscriptions: {request: RequestType, onResponse: (data: ResponseType) => void}[] = [];
+const subscriptions: Record<string, (data: ResponseType) => void> = {};
 export function listenToVsCode(){
     updateCurrentTheme();
     window.addEventListener('message', (event:any)=> {
@@ -58,16 +58,17 @@ export function listenToVsCode(){
             loader.active = false;
             loader.target = '';
             setMessage(response.message, response.success ? 'success' : 'danger');
-            const sub = subscriptions.find(t => t.request === response.request);
-            sub?.onResponse(response);
+            // const sub = subscriptions.find(t => t.request === response.request);
+            subscriptions[response.request]?.(response);
             // onResponse(response);
         }
     });
 }
 
 export function subscribeToVsCodeResponse(request: RequestType, onResponse: (message: ResponseType) => void){
-    subscriptions.push({
-        request,
-        onResponse
-    })
+    subscriptions[request] = onResponse
+    // subscriptions.push({
+    //     request,
+    //     onResponse
+    // })
 }
