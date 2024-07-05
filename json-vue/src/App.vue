@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ArgJsonTable from './components/ArgJsonTable.vue';
 import {onMounted, ref} from 'vue';
-import {currentWorkspacePath, listenToVsCode, postMessageToVsCode, settings, subscribeToVsCodeResponse} from './helpers';
+import {currentWorkspacePath, listenToVsCode, postMessageToVsCode, settings, state, subscribeToVsCodeResponse} from './helpers';
 import ArgConfigSelector from "./components/ArgConfigSelector.vue";
 import {Config, JsonRow} from "@vscode/Types";
 import {triggerFakeEvent} from "./faker";
@@ -12,7 +12,6 @@ const contentKey = ref('init-key')
 
 const allConfigs = ref<Config[]>([]);
 const translations = ref<JsonRow[]>([]);
-console.log('App.vue')
 
 subscribeToVsCodeResponse('getConfigsAndSettings', ({request, data}) => {
     if(request === 'getConfigsAndSettings'){
@@ -20,7 +19,7 @@ subscribeToVsCodeResponse('getConfigsAndSettings', ({request, data}) => {
         settings.value = data.settings;
         currentWorkspacePath.value = data.workspacePath;
         content.value = 'selector';
-        if(fake)
+        if(state.fake)
             selectedConfig.value = data.configs[0]
     }
 });
@@ -40,7 +39,7 @@ function refreshPage(){
     setTimeout(() => {
         contentKey.value = new Date().toString();
         loading.value = false;
-    }, 500);   
+    }, 500);
 }
 const selectedConfig = ref<Config|null>(null);
 function selectConfig(c: Config){
@@ -50,12 +49,13 @@ function selectConfig(c: Config){
     postMessageToVsCode({ request: 'getTranslations', data: c})
 }
 
-let fake = true;
+state.fake = !window.location.href.startsWith('vscode-webview:');
+console.log(window.location.href)
 // fake = true;
 onMounted(() => {
     listenToVsCode();
     postMessageToVsCode({request: "getConfigsAndSettings"});
-    if(fake){
+    if(state.fake){
         triggerFakeEvent();
         document.documentElement.classList.add('dark')
     }
@@ -76,6 +76,6 @@ onMounted(() => {
         <ArgJsonTable v-if="content=='jsonTable'"  :key="contentKey" @switchPage="switchPage()" @refresh="refreshPage()"
                       :config="selectedConfig!" :translations="translations" />
         <ArgConfigSelector v-else-if="content === 'selector'"  @selected="selectConfig"
-            :configs="allConfigs"/>
+                           :configs="allConfigs"/>
     </template>
 </template>

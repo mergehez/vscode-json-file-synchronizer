@@ -1,6 +1,7 @@
 ## Features
 
-Synchronizes json files by keys. A use case is managing localization files.
+- Synchronizes json files by keys. A use case is managing localization files.
+- Auto-generate typescript file containing a type for keys. like `export type TrKey = 'about' | 'home';`
 
 
 ![Screenshot](https://raw.githubusercontent.com/mergehez/vscode-json-file-synchronizer/master/images/screenshot2.JPG)

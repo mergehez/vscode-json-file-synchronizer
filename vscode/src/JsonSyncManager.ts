@@ -97,6 +97,7 @@ export class JsonSyncManager {
                 <style>
                     .ic.ic-delete:before{ --ic-url: url("delete.svg"); }
                     .ic.ic-edit:before{ --ic-url: url("edit.svg"); }
+                    .ic.ic-expand:before{ --ic-url: url("expand.svg"); }
                 </style>
                 <title>Arg Json Synchronizer</title>
             </head>

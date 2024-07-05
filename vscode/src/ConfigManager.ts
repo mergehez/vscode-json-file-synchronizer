@@ -32,6 +32,8 @@ export default class ConfigManager{
                     map.push(keyValues);
                 }else
                     keyValues.value[fileIndex] = json[key];
+
+                keyValues.isObject = typeof json[key] === 'object';
             }
         }
         return map.sort((a: JsonRow, b: JsonRow) => {
@@ -40,22 +42,37 @@ export default class ConfigManager{
     }
 
     public static updateJsonFiles(config: Config, map: JsonRow[], fileIndex: number){
-        if(fileIndex === -2){
-            for(let i = 0; i < config.fileNames.length; i++){
-                ConfigManager.updateJsonFiles(config, map, i);
-            }
-        }else{
-            const filePathFull = path.join(config.directory, config.fileNames[fileIndex]);
-            const mapFile: { [key: string]: any } = {};
-
-            map.sort((a: JsonRow, b: JsonRow) => {
-                return a.key.localeCompare(b.key, undefined, {ignorePunctuation: true});
-            }).forEach(x => {
-                mapFile[x.key] = x.value[fileIndex];
-            });
-            const json = JSON.stringify(mapFile, null, '\t');
-
-            fs.writeFileSync(filePathFull, json);
+        if (fileIndex !== -2) {
+            throw new Error("fileIndex was not -2, but " + fileIndex + " instead.");
         }
+
+        map.sort((a: JsonRow, b: JsonRow) => {
+            return a.key.localeCompare(b.key, undefined, {ignorePunctuation: true});
+        });
+        if(config.typeGenPath && config.typeGenName){
+            if(!fs.existsSync(config.typeGenPath)) {
+                fs.mkdirSync(path.dirname(config.typeGenPath), { recursive: true });
+            }
+            const keys = map.map(x => `'${x.key.replace(/'/g, "\\'")}'`).join(" | ");
+            const content = `export type ${config.typeGenName} = ${keys};\n`;
+            const url = new URL('file://' + config.typeGenPath);
+            console.log("Writing to", url);
+            fs.writeFileSync(url, content);
+        }
+        for (let i = 0; i < config.fileNames.length; i++) {
+            ConfigManager.updateJsonFile(config, map, i);
+        }
+    }
+
+    private static updateJsonFile(config: Config, map: JsonRow[], fileIndex: number){
+        const filePathFull = path.join(config.directory, config.fileNames[fileIndex]);
+        const mapFile: { [key: string]: any } = {};
+
+        map.forEach(x => {
+            mapFile[x.key] = x.value[fileIndex];
+        });
+        const json = JSON.stringify(mapFile, null, '\t');
+
+        fs.writeFileSync(filePathFull, json);
     }
 }

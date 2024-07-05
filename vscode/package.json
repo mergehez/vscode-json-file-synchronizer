@@ -2,7 +2,7 @@
     "name": "arg-json-file-synchronizer",
     "displayName": "Json File Synchronizer",
     "description": "Synchronizes keys in json files. For example i18next translation files.",
-    "version": "0.1.2",
+    "version": "0.2.2",
     "publisher": "MergeSoft",
     "repository": {
         "type": "git",
