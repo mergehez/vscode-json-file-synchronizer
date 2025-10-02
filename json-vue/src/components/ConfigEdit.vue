@@ -95,7 +95,7 @@ function onPathSelectorValueChange(event: any) {
                 <label for="input-recursive" class="leading-tight px-1 text-sm flex-1">Search recursively</label>
             </div>
             <div class="text-center">
-                <LoadingButton loader-target="search-for-files" type="submit" class="btn btn-primary w-full flex-row" >
+                <LoadingButton loader-target="search-for-files" type="submit" class="btn btn-primary w-full !flex-row" >
                     Search for files
                 </LoadingButton>
             </div>
@@ -119,6 +119,16 @@ function onPathSelectorValueChange(event: any) {
                         </div>
                     </template>
                 </div>
+                <div class="border border-gray-300 dark:border-gray-600 py-1.5 px-2 mt-3 flex gap-2 items-center">
+                    <label for="input-json-format-option" class="leading-tight px-1 text-sm flex-1">JSON Formatting:</label>
+                    <select id="input-json-format-option" v-model="currConfig.jsonFormattingOption" class="form-control w-min py-1.5">
+                        <option value="none">Minified</option>
+                        <option value="tab">Pretty (tab)</option>
+                        <option value="spaces2">Pretty (2 spaces)</option>
+                        <option value="spaces4">Pretty (4 spaces)</option>
+                        <option value="vscodeFormatter">VS Code Formatter</option>
+                    </select>
+                </div>
                 <div class="border border-gray-300 dark:border-gray-600 p-2 mt-3">
                     <div class="flex gap-2 items-center">
                         <input type="checkbox" style="width:20px;height:20px;" class="form-check-input" id="input-type-gen"
@@ -135,7 +145,7 @@ function onPathSelectorValueChange(event: any) {
                         <input type="text" class="form-control" id="input-types-name" :required="true" v-model="currConfig.typeGenName" placeholder="e.g. TrKey">
                     </div>
                 </div>
-                <LoadingButton loader-target="btn-save-config" @click.prevent="updateConfig()" class="btn btn-success mt-3 px-5 w-full" >
+                <LoadingButton loader-target="btn-save-config" @click.prevent="updateConfig()" class="btn btn-success mt-3 px-5 w-full !flex-row" >
                     Save
                 </LoadingButton>
             </div>
