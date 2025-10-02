@@ -90,9 +90,12 @@ onMounted(() => {
         </button>
     </div>
     <template v-else>
-        <ArgJsonTable v-if="content=='jsonTable'"  :key="contentKey" @switchPage="switchPage()" @refresh="refreshPage()"
-                      :config="selectedConfig!" :translations="translations" />
-        <ArgConfigSelector v-else-if="content === 'selector'"  @selected="selectConfig"
-                           :configs="allConfigs"/>
+        <ArgJsonTable v-if="content=='jsonTable'" :key="contentKey" @switchPage="switchPage()" @refresh="refreshPage()"
+                      :config="selectedConfig!" :translations="translations"/>
+        <ArgConfigSelector
+            v-else-if="content === 'selector'"
+            :on-select="selectConfig"
+            :on-delete="deleteConfig"
+            :configs="allConfigs"/>
     </template>
 </template>

@@ -6,18 +6,16 @@ import ConfigEdit from "./ConfigEdit.vue";
 import DeleteButton from "./DeleteButton.vue";
 
 const props = defineProps<{
-    configs: Config[]
+    configs: Config[],
+    onSelect: (c: Config) => void,
+    onDelete: (c: Config) => void,
 }>();
-const emit = defineEmits(['selected'])
-
 
 const currConfigs = ref(props.configs);
 
-function deleteConfig(c: Config){
-    console.log("delete config", c)
-}
-function selectConfig(c: Config){
-    emit('selected', c);
+function deleteConfig(c: Config) {
+    props.onDelete(c)
+    currConfigs.value = currConfigs.value.filter(t => t.key != c.key);
 }
 
 const configToEdit = ref<Config | null>(null);
@@ -47,7 +45,7 @@ function onConfigSaved(c: Config) {
             <h2 class="mb-3 w-full">Please select a config or create a new one...</h2>
             <div class="w-full flex flex-col items-stretch overflow-y-auto" style="max-height: 60dvh">
                 <div v-for="c of currConfigs" class="relative flex mb-1"
-                     @click.stop.prevent="selectConfig(c)">
+                     @click.stop.prevent="onSelect(c)">
                     <button class="bg-green-500 w-full btn rounded-sm btn-secondary border-none">
                         <span class="text-lg">{{ c.title || c.key }}</span>
                         <i class="text-xs text-gray-500 dark:text-gray-400 inline-block truncate w-full px-6">({{ c.directory }})</i>
