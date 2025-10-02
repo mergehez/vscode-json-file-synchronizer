@@ -65,7 +65,7 @@ export default class ConfigManager {
         }
     }
 
-    private static async updateJsonFile(config: Config, map: JsonRow[], fileIndex: number) {
+    private static updateJsonFile(config: Config, map: JsonRow[], fileIndex: number) {
         const filePathFull = path.join(config.directory, config.fileNames[fileIndex]);
         const mapFile: { [key: string]: any } = {};
 
