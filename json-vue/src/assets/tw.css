@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@plugin "@iconify/tailwind4";
+
 @custom-variant dark (&:is(.dark *));
 
 @layer base {
@@ -10,4 +12,19 @@
     ::file-selector-button {
         border-color: var(--color-gray-200, currentcolor);
     }
+}
+
+/*iconify icon*/
+.icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-color: currentColor;
+    --fallback: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDIwIDIwIj48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0xOC4xODIgMEMxOS4xODYgMCAyMCAuODE0IDIwIDEuODE4djE2LjM2NEExLjgyIDEuODIgMCAwIDEgMTguMTgyIDIwSDEuODE4QTEuODIgMS44MiAwIDAgMSAwIDE4LjE4MlYxLjgxOEMwIC44MTQuODE0IDAgMS44MTggMHptLTUuOTc1IDYuODE4TDEwLjAxIDkuMDFMNy44MTUgNi44MThhLjY4LjY4IDAgMCAwLS44OC0uMDcybC0uMDg0LjA3MmEuNjguNjggMCAwIDAgMCAuOTY0bDIuMTk1IDIuMTkzbC0yLjE5NSAyLjE5M2EuNjgyLjY4MiAwIDEgMCAuOTY0Ljk2NWwyLjE5NS0yLjE5NWwyLjE5NyAyLjE5NWMuMjQuMjQuNjEzLjI2My44OC4wNzFsLjA4NC0uMDcyYS42OC42OCAwIDAgMCAwLS45NjRsLTIuMTk2LTIuMTkzbDIuMTk1LTIuMTkzYS42ODIuNjgyIDAgMCAwLS45NjMtLjk2NCIvPjwvc3ZnPg==);
+    -webkit-mask-image: var(--svg, var(--fallback));
+    mask-image: var(--svg, var(--fallback));
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
 }

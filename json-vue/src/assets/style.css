@@ -127,15 +127,15 @@ button {
         @apply outline-none p-1.5 w-full h-full bg-transparent focus:ring-2 focus:rounded-sm focus:bg-neutral-100 dark:focus:ring-neutral-400 dark:focus:bg-neutral-700;
     }
 
-    .ic-expand {
+    .btn-expand {
         opacity: 0;
         transition: opacity 0.3s;
         position: absolute;
         right: 5px;
     }
 
-    td:hover .ic-expand,
-    .td:hover .ic-expand {
+    td:hover .btn-expand,
+    .td:hover .btn-expand {
         opacity: 1;
         /*@apply bg-gray-400 dark:bg-gray-600;*/
     }
@@ -182,52 +182,6 @@ body > #app {
 .no-select {
     -webkit-user-select: none;
     user-select: none;
-}
-
-span.ic:before {
-    vertical-align: text-bottom;
-}
-
-/*this are defined in index.html*/
-/*.ic-delete:before {*/
-/*    -webkit-mask-image: url("delete.svg");*/
-/*    mask-image: url("delete.svg");*/
-/*}*/
-/*.ic-search:before {*/
-/*    -webkit-mask-image: url("search.svg");*/
-/*    mask-image: url("search.svg");*/
-/*}*/
-.ic-space-1:before {
-    margin-right: 0.1rem;
-}
-
-span.ic, i.ic, .ic.ic-size {
-    --ic-height: 1rem;
-    height: var(--ic-height) !important;
-    width: var(--ic-height) !important;
-}
-
-.ic::before {
-    --ic-height: 1rem;
-    --ic-url: '';
-    background-size: var(--ic-height) var(--ic-height);
-    /*vertical-align: middle;*/
-    content: '';
-    height: var(--ic-height);
-    width: var(--ic-height);
-    display: inline-block;
-    background-color: currentColor;
-    -webkit-mask-size: cover;
-    mask-size: cover;
-    -webkit-mask-image: var(--ic-url);
-    mask-image: var(--ic-url);
-}
-
-.ic-sm:before {
-    --ic-height: 1rem;
-    background-size: var(--ic-height) var(--ic-height);
-    height: var(--ic-height);
-    width: var(--ic-height);
 }
 
 ::-webkit-scrollbar {

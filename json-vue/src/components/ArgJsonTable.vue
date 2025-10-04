@@ -295,8 +295,8 @@ function expand(row: JsonRow, index: any) {
                                 name="value"
                                 @blur="unfocusInput"/>
 
-                            <button v-if="enableExpand" tabindex="-1" class="btn btn-secondary p-0.5 ic ic-expand" @click.prevent.stop="expand(item, num)">
-                                <!--<i class="ic ic-expand"></i>-->
+                            <button v-if="enableExpand" tabindex="-1" class="btn btn-secondary p-0.5 btn-expand" @click.prevent.stop="expand(item, num)">
+                                <i class="icon icon-[fa-solid--expand-alt]"></i>
                             </button>
                         </template>
                     </div>

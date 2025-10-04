@@ -28,7 +28,7 @@ function confirm() {
             :class="py == 0.5 ? 'py-0.5' : py == 1 ? 'py-1' : 'py-0'"
             @click="ask"
         >
-            <i class="ic ic-delete"></i>
+            <i class="icon icon-[mingcute--delete-2-line] text-lg "></i>
         </div>
     </slot>
     <button v-if="showConfirm" class="absolute right-0 top-0 z-50 btn btn-danger py-0" @click.prevent.stop="confirm">

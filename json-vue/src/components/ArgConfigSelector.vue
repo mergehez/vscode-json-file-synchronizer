@@ -44,18 +44,18 @@ function onConfigSaved(c: Config) {
             <h1 class="text-3xl mb-1">Arg Json File Synchronizer</h1>
             <h2 class="mb-3 w-full">Please select a config or create a new one...</h2>
             <div class="w-full flex flex-col items-stretch overflow-y-auto" style="max-height: 60dvh">
-                <div v-for="c of currConfigs" class="relative flex mb-1"
-                     @click.stop.prevent="onSelect(c)">
-                    <button class="bg-green-500 w-full btn rounded-xs btn-secondary border-none">
+                <div v-for="c of currConfigs" class="relative flex mb-1">
+                    <button class="bg-green-500 w-full btn rounded-md btn-secondary border-none justify-start! items-start text-left pl-3 pr-15 py-2.5"
+                            @click.stop.prevent="onSelect(c)">
                         <span class="text-lg">{{ c.title || c.key }}</span>
-                        <i class="text-xs text-gray-500 dark:text-gray-400 inline-block truncate w-full px-6">({{ c.directory }})</i>
+                        <i class="text-xs text-gray-500 dark:text-gray-400 inline-block truncate w-full">({{ c.directory }})</i>
                     </button>
-                    <div class="absolute right-0 pr-1 flex h-full justify-center items-center gap-2 z-10">
-                        <i class="ic ic-edit ic-lg hover:text-yellow-700 text-yellow-400 cursor-pointer" @click.stop.prevent="editConfig(c)"></i>
+                    <div class="absolute right-0 pr-2 flex h-full justify-center items-center gap-2 z-10">
+                        <i class="icon icon-[mingcute--edit-2-fill] text-lg hover:text-yellow-600 text-yellow-400 cursor-pointer" @click.stop.prevent="editConfig(c)"></i>
                         <div class="inline-flex p-0 relative">
                             <DeleteButton @confirm="deleteConfig(c)">
                                 <template #default="{ask}">
-                                    <i class="ic ic-delete ic-lg hover:text-red-700 text-red-400 cursor-pointer" @click.stop.prevent="ask"></i>
+                                    <i class="icon icon-[mingcute--delete-2-line] text-lg hover:text-red-600 text-red-400 cursor-pointer" @click.stop.prevent="ask"></i>
                                 </template>
                             </DeleteButton>
                         </div>
