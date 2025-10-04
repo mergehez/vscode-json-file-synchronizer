@@ -68,8 +68,8 @@ export class JsonSyncManager {
             } else if (request === 'getFilesInFolder') {
                 getFilesInFolder(dataFromVue.directory, dataFromVue.recursive, dataFromVue.fileExts, dataFromVue.regexFilter)
                     .then(data => {
-                        if (typeof data !== 'string' && data.length === 0) { 
-                            data = "No JSON file found in the given directory."; 
+                        if (typeof data !== 'string' && data.length === 0) {
+                            data = "No JSON file found in the given directory.";
                         }
                         const msg = typeof data !== 'string' ? ('Successfully retrieved files.') : data;
                         sendResponseToVue(this, { request, data: typeof data !== 'string' ? data : [] }, typeof data !== 'string', msg);
@@ -113,7 +113,7 @@ export class JsonSyncManager {
         }, 100);
     }
     private getNonce() {
-        const possible:string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        const possible: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         let text = "";
         for (let i = 0; i < 32; i++) {
             text += possible.charAt(Math.floor(Math.random() * possible.length));
