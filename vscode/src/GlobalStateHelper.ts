@@ -1,19 +1,27 @@
-import {Config, defaultSettings, Settings} from "./Types";
+import { Config, defaultSettings, Settings } from "./Types";
 import * as vscode from "vscode";
 
 const KEY_SETTINGS = 'arg-json-synchronizer-settings';
 const KEY_CONFIGS = 'arg-json-synchronizer-configs';
-export class GlobalStateHelper{
+export class GlobalStateHelper {
     private context: vscode.ExtensionContext;
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
     }
 
-    public getConfigs = () => this.context.globalState.get<Config[]>(KEY_CONFIGS) ?? [];
+    public getConfigs = () => {
+        const res = this.context.globalState.get<Config[]>(KEY_CONFIGS) ?? [];
+
+        res.forEach(c => {
+            c.jsonFormattingOption ||= 'tab';
+        });
+
+        return res;
+    };
     public updateConfig = (configToUpdate: Config): Thenable<void> => {
         const configs = this.getConfigs();
-        for (let i = 0; i < configs.length; i++){
-            if(configs[i].key === configToUpdate.key){
+        for (let i = 0; i < configs.length; i++) {
+            if (configs[i].key === configToUpdate.key) {
                 configs[i] = configToUpdate;
                 return this.context.globalState.update(KEY_CONFIGS, configs);
             }

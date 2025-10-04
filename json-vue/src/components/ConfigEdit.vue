@@ -16,7 +16,8 @@ const currConfig = reactive((props.config ? JSON.parse(JSON.stringify(props.conf
     typeGenName: null,
     fileExts: 'json',
     key: (new Date()).getTime(),
-    title: 'new-' + (new Date()).getTime()
+    title: 'new-' + (new Date()).getTime(),
+    jsonFormattingOption: 'tab'
 } as Config) as Config);
 const typeGen = ref(props.config ? props.config.typeGenPath && props.config.typeGenName : false);
 
