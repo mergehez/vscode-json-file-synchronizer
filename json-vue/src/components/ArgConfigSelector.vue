@@ -46,7 +46,7 @@ function onConfigSaved(c: Config) {
             <div class="w-full flex flex-col items-stretch overflow-y-auto" style="max-height: 60dvh">
                 <div v-for="c of currConfigs" class="relative flex mb-1"
                      @click.stop.prevent="onSelect(c)">
-                    <button class="bg-green-500 w-full btn rounded-sm btn-secondary border-none">
+                    <button class="bg-green-500 w-full btn rounded-xs btn-secondary border-none">
                         <span class="text-lg">{{ c.title || c.key }}</span>
                         <i class="text-xs text-gray-500 dark:text-gray-400 inline-block truncate w-full px-6">({{ c.directory }})</i>
                     </button>

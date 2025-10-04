@@ -6,7 +6,7 @@ import {currentWorkspacePath, postMessageToVsCode, state, subscribeToVsCodeRespo
 import * as faker from '../faker'
 
 const props = defineProps<{
-    config: Config|null
+    config: Config | null
 }>();
 const emit = defineEmits(['update:config', 'save']);
 
@@ -21,13 +21,13 @@ const currConfig = reactive((props.config ? JSON.parse(JSON.stringify(props.conf
 const typeGen = ref(props.config ? props.config.typeGenPath && props.config.typeGenName : false);
 
 const searchResultMessage = ref('');
-const searchResults = ref<ConfigSearchResult[]|null>(props.config ? JSON.parse(JSON.stringify(props.config)).fileNames.map((t:string) => ({
+const searchResults = ref<ConfigSearchResult[] | null>(props.config ? JSON.parse(JSON.stringify(props.config)).fileNames.map((t: string) => ({
     checked: true,
     value: t
 })) : null);
 
-subscribeToVsCodeResponse('getFilesInFolder', ({request, data ,message}) => {
-    if(request === 'getFilesInFolder'){
+subscribeToVsCodeResponse('getFilesInFolder', ({request, data, message}) => {
+    if (request === 'getFilesInFolder') {
         searchResultMessage.value = message;
         searchResults.value = data.map(t => ({
             checked: true,
@@ -36,21 +36,22 @@ subscribeToVsCodeResponse('getFilesInFolder', ({request, data ,message}) => {
     }
 });
 subscribeToVsCodeResponse('updateConfig', ({request, success}) => {
-    if(request === 'updateConfig' && success){
+    if (request === 'updateConfig' && success) {
         emit('save', currConfig);
     }
 });
 
 function requestFilePaths() {
-    if(state.fake){
+    if (state.fake) {
         faker.triggerSearchResults();
-    }else{
+    } else {
         postMessageToVsCode({
             request: 'getFilesInFolder',
             data: currConfig
         }, 'search-for-files');
     }
 }
+
 function updateConfig() {
     currConfig.fileNames = searchResults.value!.filter(t => t.checked).map(t => t.value);
 
@@ -63,17 +64,18 @@ function updateConfig() {
 }
 
 const fileSelectorValue = ref<any>(null);
+
 function onPathSelectorValueChange(event: any) {
     fileSelectorValue.value = event.target.value;
 }
 </script>
 
 <template>
-    <div class="text-center text-2xl mb-2"> Create/Edit Config </div>
+    <div class="text-center text-2xl mb-2"> Create/Edit Config</div>
     <div class="py-3 px-1 flex gap-3" style="width: min(800px, 80dvw)">
         <form class="w-7/12" @submit.prevent="requestFilePaths()">
             <input id="file-selector" type="file" @change="onPathSelectorValueChange" webkitdirectory directory
-                   :multiple="false" style="display:none" />
+                   :multiple="false" style="display:none"/>
             <div class="mb-3">
                 <label for="input-name" class="leading-tight px-1 text-sm">Project title</label>
                 <input type="text" class="form-control" id="input-name" :required="true" v-model="currConfig.title">
@@ -95,7 +97,7 @@ function onPathSelectorValueChange(event: any) {
                 <label for="input-recursive" class="leading-tight px-1 text-sm flex-1">Search recursively</label>
             </div>
             <div class="text-center">
-                <LoadingButton loader-target="search-for-files" type="submit" class="btn btn-primary w-full !flex-row" >
+                <LoadingButton loader-target="search-for-files" type="submit" class="btn btn-primary w-full flex-row!">
                     Search for files
                 </LoadingButton>
             </div>
@@ -108,14 +110,14 @@ function onPathSelectorValueChange(event: any) {
                 <div class="font-bold">Search Result</div>
                 <div class="form-text text-sm mb-2">Please uncheck files you don't want to include</div>
                 <div>
-                    <button class="btn btn-secondary rounded-sm text-xs text-decoration-none py-0.5" @click="searchResults.forEach(t => t.checked = false)">Uncheck All</button>
-                    <button class="btn btn-secondary rounded-sm text-xs text-decoration-none py-0.5 ml-2" @click="searchResults.forEach(t => t.checked = true)">Check All</button>
+                    <button class="btn btn-secondary rounded-xs text-xs text-decoration-none py-0.5" @click="searchResults.forEach(t => t.checked = false)">Uncheck All</button>
+                    <button class="btn btn-secondary rounded-xs text-xs text-decoration-none py-0.5 ml-2" @click="searchResults.forEach(t => t.checked = true)">Check All</button>
                 </div>
                 <div class="mt-1 border border-gray-300 dark:border-gray-600 flex flex-col divide-y divide-gray-300 dark:divide-gray-600 text-sm overflow-y-auto scrollbar-thin" style="max-height: 225px">
                     <template v-for="(x,index) in searchResults">
                         <div class="flex flex-row items-center pointer p-1 px-3 hover:opacity-80">
                             <input type="checkbox" :id="'filepath-'+index" v-model="x.checked" class="form-check-input mr-1" style="width: 20px; height: 20px;">
-                            <label class="no-select pl-3 flex-1" :for="'filepath-'+index">{{x.value}}</label>
+                            <label class="no-select pl-3 flex-1" :for="'filepath-'+index">{{ x.value }}</label>
                         </div>
                     </template>
                 </div>
@@ -145,7 +147,7 @@ function onPathSelectorValueChange(event: any) {
                         <input type="text" class="form-control" id="input-types-name" :required="true" v-model="currConfig.typeGenName" placeholder="e.g. TrKey">
                     </div>
                 </div>
-                <LoadingButton loader-target="btn-save-config" @click.prevent="updateConfig()" class="btn btn-success mt-3 px-5 w-full !flex-row" >
+                <LoadingButton loader-target="btn-save-config" @click.prevent="updateConfig()" class="btn btn-success mt-3 px-5 w-full flex-row!">
                     Save
                 </LoadingButton>
             </div>

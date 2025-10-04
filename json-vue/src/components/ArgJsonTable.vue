@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import {reactive, ref} from 'vue'
+import {reactive, ref, watch} from 'vue'
 import {Config, createEmptyJsonRow, JsonRow} from '../../../vscode/src/Types';
 import {loader, postMessageToVsCode, settings, state} from '../helpers'
 import LoadingButton from './LoadingButton.vue';
 import Scaffold from './Scaffold.vue';
-import DataTable from "primevue/datatable";
-import Column from "primevue/column";
-import InputText from "primevue/inputtext";
 import DeleteButton from "./DeleteButton.vue";
 import CenteredModal from "./CenteredModal.vue";
+import ArgVirtualScroller from "./ArgVirtualScroller.vue";
 
 const props = defineProps<{
     config: Config,
@@ -71,6 +69,7 @@ function saveChanges() {
 }
 
 function updateAllConfigs() {
+    console.log('updateAllConfigs', props.config)
     postMessageToVsCode({
         request: 'updateConfig',
         data: configs[0],
@@ -100,10 +99,10 @@ const filter = reactive({
 let lastFilter = '';
 
 function filterData(force = false) {
-    if (filter.query.trim().length == 0) {
-        filter.query = '';
+    let q = filter.query.toLowerCase();
+    if (q.trim().length == 0) {
+        q = '';
     }
-    const q = filter.query.toLowerCase();
     if (filter.emptyOnly) {
         if (q.trim()) {
             if (!force && lastFilter == '_empty_' + q) {
@@ -141,6 +140,14 @@ function filterData(force = false) {
     }
 }
 
+watch([() => filter.query, () => filter.emptyOnly], (nv, ov) => {
+    console.log(JSON.stringify(nv), JSON.stringify(ov))
+    if (nv[1] != ov[1]) {
+        props.config.tableFilterEmpty = nv[1];
+        updateAllConfigs();
+    }
+    filterData();
+}, {deep: true});
 
 function focusInput(e: any) {
     e.target.parentNode.parentNode.classList.add("focused");
@@ -208,7 +215,7 @@ function expand(row: JsonRow, index: any) {
             <!--                <label for="input-recursive">Save on Change</label>-->
             <!--            </div>-->
             <div class="flex items-center py-0 px-2 text-sm ml-3">
-                <input type="checkbox" id="input-filter-empty" v-model="config.tableFilterEmpty" @change="(v: any) => {filter.emptyOnly = v.target.checked; filterData(); updateAllConfigs()}">
+                <input type="checkbox" id="input-filter-empty" v-model="filter.emptyOnly">
                 <label for="input-filter-empty">Only missing</label>
             </div>
             <div class="flex items-center py-0 px-2 text-sm ml-3" title="if enabled, you will see a button to open a larger editor for the row when you hover over a cell">
@@ -224,12 +231,11 @@ function expand(row: JsonRow, index: any) {
                 </select>
             </div>
             <div class="relative h-5/6 flex items-center ml-2" style="width: 180px;">
-                <InputText :model-value="filter.query"
-                           @update:model-value="(v: string) => {filter.query = v; filterData();}"
-                           name="search"
-                           class="absolute inset-0 h-full rounded py-1 px-2 border border-gray-300 dark:border-gray-600 bg-transparent"
-                           placeholder="search key"/>
-                <button v-if="filter.query" class="absolute right-1 cursor-pointer px-2 z-10 opacity-70" @click="filter.query = ''; filterData();">x</button>
+                <input v-model="filter.query"
+                       name="search"
+                       class="absolute inset-0 h-full rounded-sm py-1 px-2 border border-gray-300 dark:border-gray-600 bg-transparent"
+                       placeholder="search key"/>
+                <button v-if="filter.query" class="absolute right-1 cursor-pointer px-2 z-10 opacity-70" @click="filter.query = ''">x</button>
             </div>
             <div class="flex-1"></div>
             <button :loader="loader" loader-target="refresh" @click="refresh()" class="btn btn-primary flex-row h-5/6 py-0 px-2">
@@ -242,111 +248,117 @@ function expand(row: JsonRow, index: any) {
                 Configuration
             </LoadingButton>
         </div>
-        <DataTable :value="visibleMap" data-key="id"
-                   class="arg-table"
-                   :class="enableExpand ? 'expandable' : ''"
-                   size="small"
-                   :pt="{ table: { style: 'min-width: 50rem' } }"
-                   scrollable showGridlines
-                   scrollHeight="flex"
-                   :virtualScrollerOptions="{ itemSize: 25 * Number(settings.baseTextSize) }"
-        >
-            <Column field="key" header="Key">
-                <template #body="{ data, field }">
-                    <input
-                        v-model="data[field]"
-                        required
-                        name="key"
-                        :readonly="data[field].isObject"
-                        :title="data[field].isObject ? 'this currently cannot be edited. Because it is an object..':''"
-                        @focus="focusInput"
-                        @blur="unfocusInput"
-                    />
-                </template>
-            </Column>
+        <div class="flex-1 arg-table flex flex-col overflow-y-auto">
+            <div class="flex w-full items-center tr">
+                <div
+                    v-for="title in ['Key', ...config.fileNames]" :key="title"
+                    class="flex-1 bg-gray-100 dark:bg-gray-800 p-1 th"
+                >
+                    {{ title }}
+                </div>
+                <i class="w-10"></i>
+            </div>
+            <ArgVirtualScroller
+                type="normal"
+                :items="visibleMap"
+                :item-size="25 * Number(settings.baseTextSize)"
+                key-field="key"
+                class="w-full flex-1 bg-transparent"
+                item-class="flex items-center gap-3 "
+                v-slot="{ item }: { item: JsonRow }"
+            >
+                <div class="flex w-full  relative tr">
+                    <div
+                        v-for="num in (item.value.length + 1)" :key="item.key+num"
+                        class="flex-1 td flex items-center"
+                    >
+                        <input
+                            v-if="num == 1"
+                            v-model="item.key"
+                            required
+                            name="key"
+                            :readonly="item.isObject"
+                            :title="item.isObject ? 'this currently cannot be edited. Because it is an object..':''"
+                            @focus="focusInput"
+                            @blur="unfocusInput"
+                        />
+                        <template v-else>
+                            <input
+                                v-model="item.value[num-2]"
+                                :required="!item.isObject"
+                                :readonly="item.isObject"
+                                :style="item.isObject ? 'cursor:not-allowed;':''"
+                                :title="item.isObject ? 'this currently cannot be edited. Because it is an object..':''"
+                                :disabled="item.key.length == 0"
+                                @keyup="(e) => onKeyUp(e, num)"
+                                @focus="focusInput"
+                                name="value"
+                                @blur="unfocusInput"/>
 
-            <Column v-for="num of state.fileCount" :key="num" field="value" :header="config.fileNames[num-1]" class="relative"> <!-- style="width: 25%"-->
-                <template #body="{ data, field }">
-                    <input
-                        v-model="data[field][num-1]"
-                        :required="!data[field].isObject"
-                        :readonly="data[field].isObject"
-                        :style="data[field].isObject ? 'cursor:not-allowed;':''"
-                        :title="data[field].isObject ? 'this currently cannot be edited. Because it is an object..':''"
-                        :disabled="data.key.length == 0"
-                        @keyup="(e) => onKeyUp(e, num)"
-                        @focus="focusInput"
-                        name="value"
-                        @blur="unfocusInput"/>
-
-                    <button v-if="enableExpand" class="btn btn-secondary p-0.5 ic ic-expand" @click.prevent.stop="expand(data, num)">
-                        <!--<i class="ic ic-expand"></i>-->
-                    </button>
-                </template>
-            </Column>
-            <Column field="key" style="width:45px;">
-                <template #body="{ data }">
-                    <div class="relative text-center">
-                        <DeleteButton @confirm="deleteRow(data)"/>
-                    </div>
-                </template>
-            </Column>
-            <template #footer>
-                <CenteredModal
-                    :show="!!toExpand.row"
-                    @update:show="toExpand.row = null"
-                    content-class="py-10 px-8"
-                    close-button>
-                    <div v-if="toExpand.row" class="flex flex-col gap-2">
-                        <div class="font-bold text-2xl">{{ toExpand.row.key }}</div>
-                        <div class="flex mt-3 w-full">
-                            <template v-if="!toExpand.list">
-                                <button
-                                    v-for="num of state.fileCount" :key="num"
-                                    class="btn rounded-none mr-2"
-                                    :class="num == toExpand.index ? 'btn-success' : 'btn-secondary'"
-                                    @click.prevent.stop="toExpand.index = num">
-                                    <span>{{ config.fileNames[num - 1] }}</span>
-                                </button>
-                            </template>
-                            <button
-                                class="btn rounded-none ml-auto"
-                                :class="toExpand.list ? 'btn-success' : 'btn-secondary'"
-                                @click.prevent.stop="toExpand.list = true">
-                                <span>List</span>
+                            <button v-if="enableExpand" tabindex="-1" class="btn btn-secondary p-0.5 ic ic-expand" @click.prevent.stop="expand(item, num)">
+                                <!--<i class="ic ic-expand"></i>-->
                             </button>
-                            <button
-                                class="btn rounded-none"
-                                :class="!toExpand.list ? 'btn-success' : 'btn-secondary'"
-                                @click.prevent.stop="toExpand.list = false">
-                                <span>Tab</span>
-                            </button>
-                        </div>
-
-                        <div v-if="toExpand.list"
-                             class="grid gap-2"
-                             style="grid-template-columns: auto 1fr;">
-                            <template v-for="num of state.fileCount" :key="num">
-                                <span class="font-bold pr-2">{{ config.fileNames[num - 1] }}</span>
-                                <textarea
-                                    v-model="toExpand.row!.value[num-1] as string"
-                                    rows="2"
-                                    class="border border-gray-300 dark:border-gray-600 p-2.5 bg-transparent flex-1"
-                                    style="width: min(90vw, 600px);"
-                                ></textarea>
-                            </template>
-                        </div>
-                        <textarea
-                            v-else
-                            v-model="toExpand.row!.value[toExpand.index-1] as string"
-                            rows="20"
-                            class="border border-gray-300 dark:border-gray-600 p-2.5 bg-transparent"
-                            style="width: min(90vw, 600px);"
-                        ></textarea>
+                        </template>
                     </div>
-                </CenteredModal>
-            </template>
-        </DataTable>
+                    <div class="relative text-center w-10 flex items-center justify-center">
+                        <DeleteButton @confirm="deleteRow(item)" :py="0.5"/>
+                    </div>
+                </div>
+            </ArgVirtualScroller>
+            <CenteredModal
+                :show="!!toExpand.row"
+                @update:show="toExpand.row = null"
+                content-class="py-10 px-8"
+                close-button>
+                <div v-if="toExpand.row" class="flex flex-col gap-2">
+                    <div class="font-bold text-2xl">{{ toExpand.row.key }}</div>
+                    <div class="flex mt-3 w-full">
+                        <template v-if="!toExpand.list">
+                            <button
+                                v-for="num of state.fileCount" :key="num"
+                                class="btn rounded-none mr-2"
+                                :class="num == toExpand.index ? 'btn-success' : 'btn-secondary'"
+                                @click.prevent.stop="toExpand.index = num">
+                                <span>{{ config.fileNames[num - 1] }}</span>
+                            </button>
+                        </template>
+                        <button
+                            class="btn rounded-none ml-auto"
+                            :class="toExpand.list ? 'btn-success' : 'btn-secondary'"
+                            @click.prevent.stop="toExpand.list = true">
+                            <span>List</span>
+                        </button>
+                        <button
+                            class="btn rounded-none"
+                            :class="!toExpand.list ? 'btn-success' : 'btn-secondary'"
+                            @click.prevent.stop="toExpand.list = false">
+                            <span>Tab</span>
+                        </button>
+                    </div>
+
+                    <div v-if="toExpand.list"
+                         class="grid gap-2"
+                         style="grid-template-columns: auto 1fr;">
+                        <template v-for="num of state.fileCount" :key="num">
+                            <span class="font-bold pr-2">{{ config.fileNames[num - 1] }}</span>
+                            <textarea
+                                v-model="toExpand.row!.value[num-1] as string"
+                                rows="2"
+                                class="border border-gray-300 dark:border-gray-600 p-2.5 bg-transparent flex-1"
+                                style="width: min(90vw, 600px);"
+                            ></textarea>
+                        </template>
+                    </div>
+                    <textarea
+                        v-else
+                        v-model="toExpand.row!.value[toExpand.index-1] as string"
+                        rows="20"
+                        class="border border-gray-300 dark:border-gray-600 p-2.5 bg-transparent"
+                        style="width: min(90vw, 600px);"
+                    ></textarea>
+                </div>
+            </CenteredModal>
+        </div>
 
 
     </Scaffold>
