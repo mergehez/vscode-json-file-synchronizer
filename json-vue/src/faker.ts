@@ -43,7 +43,7 @@ const getConfigsAndSettings = {
 }
 
 
-const trigger = (key:string, data:any) => {
+const trigger = (key: string, data: any) => {
     try {
         setTimeout(() => {
             const event = new CustomEvent('message', {
@@ -62,56 +62,32 @@ const trigger = (key:string, data:any) => {
         console.error("error in triggerFakeEvent", e);
     }
 };
-export function triggerFakeEvent(){
-    // const configs = getConfigsAndSettings;
+
+export function triggerFakeEvent() {
     trigger('getConfigsAndSettings', getConfigsAndSettings);
 
-    const translations: JsonRow[] = [];
-    readJsonFiles().then((jsons) => {
-        for (let i = 0; i < jsons.length; i++){
-            const json = jsons[i];
-            for (const key in json) {
-                let existing = translations.find(t => t.key === key);
-                if(!existing){
-                    existing = {
-                        id: uniqueId(),
-                        key,
-                        value: Array.from({length: jsons.length}).fill('') as (string|object)[],
-                        // hasEmptyCol: json[key],
-                        isObject: typeof json[key] === 'object'
-                    };
-                    existing.value[i] = json[key];
-                    translations.push(existing);
-                }else{
-                    existing.value[i] = json[key];
-                }
+    const langs = ['en', 'kmr', 'zza', 'tr'];
+    const alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+    const fake = [] as JsonRow[];
 
-                // if(i === jsons.length - 1)
-                //     existing.hasEmptyCol = existing.value.some(t => t === '') ? 'true' : 'false';
+    for (const l of alphabet) {
+        for (let i = 0; i < 3; i++) {
+            const key = l + ' ' + (i + 1);
+            const r: JsonRow = {
+                id: uniqueId(),
+                key: key,
+                isObject: false,
+                value: []
+            };
+            for (const lang of langs) {
+                r.value.push(uniqueId() + ` ${lang}`);
             }
+            fake.push(r);
         }
-        trigger('getTranslations', translations);
-    });
-
-    // trigger('getTranslations', getTranslations);
-}
-
-
-async function readJsonFiles() {
-    const jsons = [];
-    for (const file of getConfigsAndSettings.configs[0].fileNames) {
-        jsons.push(await readJsonFile(file));
     }
-    return jsons;
-}
-async function readJsonFile(file: string) {
-    var response = await fetch(`http://127.0.0.1:5500/${file}`);//Change this to your url
-    const json = response.json();
-
-    console.log(json);
-    return json;
+    trigger('getTranslations', fake);
 }
 
-export function triggerSearchResults(){
+export function triggerSearchResults() {
     trigger('getFilesInFolder', getConfigsAndSettings.configs[0].fileNames);
 }
