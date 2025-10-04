@@ -42,6 +42,17 @@ export default class ConfigManager {
         });
     }
 
+    public static openFileInNewTab(config: Config, fileIndex: number) {
+        if (fileIndex < 0 || fileIndex >= config.fileNames.length) {
+            throw new Error("fileIndex out of range");
+        }
+        const filePathFull = path.join(config.directory, config.fileNames[fileIndex]);
+        const url = vscode.Uri.file(filePathFull);
+        vscode.workspace.openTextDocument(url).then(doc => {
+            vscode.window.showTextDocument(doc, {preview: false});
+        });        
+    }
+    
     public static updateJsonFiles(config: Config, map: JsonRow[], fileIndex: number) {
         if (fileIndex !== -2) {
             throw new Error("fileIndex was not -2, but " + fileIndex + " instead.");

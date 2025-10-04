@@ -53,7 +53,16 @@ function deleteRow(row: JsonRow) {
 
 function refresh() {
     emit('refresh');
-    // postMessage({ command: 'refresh' }, '');
+}
+
+function openFile(fileIndex: number) {
+    postMessageToVsCode({
+        request: 'openFile',
+        data: {
+            config: props.config,
+            fileIndex: fileIndex,
+        }
+    });
 }
 
 // function saveChanges(fileIndex:number){
@@ -250,11 +259,21 @@ function expand(row: JsonRow, index: any) {
         </div>
         <div class="flex-1 arg-table flex flex-col overflow-y-auto">
             <div class="flex w-full items-center tr">
+                <div class="flex-1 bg-gray-100 dark:bg-gray-800 p-1 th">
+                    Key
+                </div>
                 <div
-                    v-for="title in ['Key', ...config.fileNames]" :key="title"
-                    class="flex-1 bg-gray-100 dark:bg-gray-800 p-1 th"
+                    v-for="(title, index) in config.fileNames" :key="title"
+                    class="flex-1 bg-gray-100 dark:bg-gray-800 p-1 th relative flex items-center gap-1"
                 >
                     {{ title }}
+                    <button
+                        class="btn p-1"
+                        @click.prevent.stop="openFile(index)"
+                        :title="'Open File in new tab\nPath: ' + config.directory + '/'+ title"
+                    >
+                        <i class="icon icon-[mingcute--external-link-line] text-lg opacity-80 hover:opacity-100 "></i>
+                    </button>
                 </div>
                 <i class="w-10"></i>
             </div>

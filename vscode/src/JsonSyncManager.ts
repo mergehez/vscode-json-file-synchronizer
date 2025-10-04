@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { ColorThemeKind } from 'vscode';
 import ConfigManager from './ConfigManager';
 import { getWebviewOptions } from './extension';
-import { listenToRequestsFromVue, sendResponseToVue } from "./Bridge";
+import {listenToRequestsFromVue, sendResponseToVue} from "./Bridge";
 import { GlobalStateHelper } from "./GlobalStateHelper";
 import { getFilesInFolder } from "./io";
 
@@ -37,45 +37,55 @@ export class JsonSyncManager {
         });
 
         listenToRequestsFromVue(this, ({ request, data: dataFromVue }) => {
-            if (request === 'alert') {
-                vscode.window.showErrorMessage(dataFromVue);
-            } else if (request === 'getConfigsAndSettings') {
-                const workspacePaths = vscode.workspace.workspaceFolders;
-                const workspacePath = workspacePaths ? workspacePaths[0]?.uri.fsPath.toString().replace(/\\/gi, "/") ?? "" : "";
-                sendResponseToVue(this, {
-                    request, data: {
-                        configs: this._globalStateHelper.getConfigs(),
-                        settings: this._globalStateHelper.getSettings(),
-                        workspacePath
-                    }
-                });
-            } else if (request === 'getTranslations') {
-                const data = ConfigManager.getTranslations(dataFromVue, this._globalStateHelper);
-                sendResponseToVue(this, { request, data });
-            } else if (request === 'updateFile') {
-                ConfigManager.updateJsonFiles(dataFromVue.config, dataFromVue.map, dataFromVue.fileIndex);
-                sendResponseToVue(this, { request });
-                return;
-            } else if (request === 'updateConfig') {
-                this._globalStateHelper.updateConfig(dataFromVue)
-                    .then(() => sendResponseToVue(this, { request }));
-            } else if (request === 'deleteConfig') {
-                this._globalStateHelper.deleteConfig(dataFromVue)
-                    .then(() => sendResponseToVue(this, { request }));
-            } else if (request === 'updateSettings') {
-                this._globalStateHelper.updateSettings(dataFromVue)
-                    .then(() => sendResponseToVue(this, { request, data: this._globalStateHelper.getSettings() }));
-            } else if (request === 'getFilesInFolder') {
-                getFilesInFolder(dataFromVue.directory, dataFromVue.recursive, dataFromVue.fileExts, dataFromVue.regexFilter)
-                    .then(data => {
-                        if (typeof data !== 'string' && data.length === 0) {
-                            data = "No JSON file found in the given directory.";
+            switch (request) {
+                case 'alert':
+                    vscode.window.showErrorMessage(dataFromVue);
+                    break;
+                case 'getConfigsAndSettings':
+                    const workspacePaths = vscode.workspace.workspaceFolders;
+                    const workspacePath = workspacePaths ? workspacePaths[0]?.uri.fsPath.toString().replace(/\\/gi, "/") ?? "" : "";
+                    sendResponseToVue(this, {
+                        request, data: {
+                            configs: this._globalStateHelper.getConfigs(),
+                            settings: this._globalStateHelper.getSettings(),
+                            workspacePath
                         }
-                        const msg = typeof data !== 'string' ? ('Successfully retrieved files.') : data;
-                        sendResponseToVue(this, { request, data: typeof data !== 'string' ? data : [] }, typeof data !== 'string', msg);
                     });
-                return;
-            } else {
+                    break;
+                case 'getTranslations':
+                    const data = ConfigManager.getTranslations(dataFromVue, this._globalStateHelper);
+                    sendResponseToVue(this, { request, data });
+                    break;
+                case 'openFile':
+                    ConfigManager.openFileInNewTab(dataFromVue.config, dataFromVue.fileIndex);
+                    break;
+                case 'updateFile':
+                    ConfigManager.updateJsonFiles(dataFromVue.config, dataFromVue.map, dataFromVue.fileIndex);
+                    sendResponseToVue(this, { request });
+                    break;
+                case 'updateConfig':
+                    this._globalStateHelper.updateConfig(dataFromVue)
+                        .then(() => sendResponseToVue(this, { request }));
+                    break;
+                case 'deleteConfig':
+                    this._globalStateHelper.deleteConfig(dataFromVue)
+                        .then(() => sendResponseToVue(this, { request }));
+                    break;
+                case 'updateSettings':
+                    this._globalStateHelper.updateSettings(dataFromVue)
+                        .then(() => sendResponseToVue(this, { request, data: this._globalStateHelper.getSettings() }));
+                    break;
+                case 'getFilesInFolder':
+                    getFilesInFolder(dataFromVue.directory, dataFromVue.recursive, dataFromVue.fileExts, dataFromVue.regexFilter)
+                        .then(data => {
+                            if (typeof data !== 'string' && data.length === 0) {
+                                data = "No JSON file found in the given directory.";
+                            }
+                            const msg = typeof data !== 'string' ? ('Successfully retrieved files.') : data;
+                            sendResponseToVue(this, { request, data: typeof data !== 'string' ? data : [] }, typeof data !== 'string', msg);
+                        });
+                    break;
+                default:
                 console.log(`request '${request}' is not supported!`);
             }
         });

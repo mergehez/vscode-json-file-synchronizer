@@ -5,6 +5,9 @@ export type CommandFromVue = {
     request: 'updateFile',
     data: {config: Config, fileIndex: number, map: JsonRow[]}
 } | {
+    request: 'openFile',
+    data: {config: Config, fileIndex: number}
+} | {
     request: 'updateSettings',
     data: Settings
 } | {
