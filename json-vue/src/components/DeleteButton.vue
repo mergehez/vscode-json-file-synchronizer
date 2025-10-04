@@ -2,13 +2,19 @@
 
 import {ref} from "vue";
 
+defineProps<{
+    py?: 0 | 0.5 | 1
+}>()
+
 const emit = defineEmits(['confirm'])
 const showConfirm = ref(false);
-function ask(){
+
+function ask() {
     showConfirm.value = true;
     setTimeout(() => showConfirm.value = false, 2000);
 }
-function confirm(){
+
+function confirm() {
     showConfirm.value = false;
     emit('confirm');
 }
@@ -16,7 +22,12 @@ function confirm(){
 
 <template>
     <slot :ask="ask">
-        <div title="delete" class="btn btn-danger justify-between py-0 px-1 rounded relative" @click="ask">
+        <div
+            title="delete"
+            class="btn btn-danger justify-between px-1 rounded-sm relative"
+            :class="py == 0.5 ? 'py-0.5' : py == 1 ? 'py-1' : 'py-0'"
+            @click="ask"
+        >
             <i class="ic ic-delete"></i>
         </div>
     </slot>
